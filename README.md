@@ -1,7 +1,10 @@
 # 📦 BoxaraXLibrary.GenenicLib.LTS
 
-LTS .NET 10,9,8 APACHE 2.0
+![.NET Version](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?style=for-the-badge&logo=dotnet)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge)
 
+> **Generic Library LTS** — Core framework for building shell-based CLI applications with command handling, rich console UI, and fluent API. Designed for **Lazy DevOps & Engineers**.
 **Generic Library LTS** — Core framework for building shell-based CLI applications with command handling, rich console UI, and fluent API.
 
 ---
