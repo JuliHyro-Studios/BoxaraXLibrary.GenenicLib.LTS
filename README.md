@@ -64,7 +64,7 @@ dotnet add package BoxaraXLibrary.GenenicLib.LTS
 ### 1. Clone the repository
 
 ```
-git clone https://github.com/your-repo/BoxaraXLibrary.GenenicLib.LTS.git
+git clone https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS
 cd BoxaraXLibrary.GenenicLib.LTS
 ```
 
