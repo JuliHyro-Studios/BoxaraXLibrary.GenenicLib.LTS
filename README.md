@@ -1,6 +1,6 @@
 # 📦 BoxaraXLibrary.GenenicLib.LTS
 
-LTS .NET 10 APACHE 2.0
+LTS .NET 10,9,8 APACHE 2.0
 
 **Generic Library LTS** — Core framework for building shell-based CLI applications with command handling, rich console UI, and fluent API.
 
