@@ -7,7 +7,23 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 {
     public enum HeaderStyle
     {
-        Classic,                    DoubleLine,                 StarBorder,                 Boxed,                      Minimal,                    Clean,                      Fancy,                      Banner,                     AsciiArt,                   Cyber,                      Neon,                       Retro,                      Matrix,                     Minimalist,                 Modern,                     Elegant,                }
+        Classic,                    
+        DoubleLine,                 
+        StarBorder,                 
+        Boxed,                      
+        Minimal,                    
+        Clean,                      
+        Fancy,                      
+        Banner,                     
+        AsciiArt,                   
+        Cyber,                      
+        Neon,                       
+        Retro,                      
+        Matrix,                     
+        Minimalist,                 
+        Modern,                     
+        Elegant,                
+    }
 
     public static class ShellHeaderTemplate
     {
