@@ -203,6 +203,43 @@ ShelliftAPIBuild.Create()
     .WithAppVersion("1.0.0")
     .Build();
 ```
+### Or with a custom prompt:
+```
+ShelliftAPIBuild.Create()
+    .SelectCommandShellLoad("MyShell")
+    .WithTitle("My App", "Starting...")
+    .SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+    .WithExtraHeaderInfo("External commands: 5")
+    .SelectCustomPrompt(() => $"{DateTime.Now:HH:mm:ss} > ", ConsoleColor.Cyan)
+    .WithAppName("MyApp")
+    .WithAppVersion("1.0.0")
+    .Build();
+```
+### Custom Header! (new):
+```
+ShelliftAPIBuild.Create()
+    .SelectCustomHeader(() =>
+    {
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("╔═══════════════════════════════════╗");
+        Console.WriteLine($"║  MyApp v1.0.0 - {DateTime.Now}  ║");
+        Console.WriteLine("╚═══════════════════════════════════╝");
+        Console.ResetColor();
+    })
+    .Build();
+
+// Or use a method
+private void RenderHeader()
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"=== MyApp v1.0.0 - {DateTime.Now:HH:mm:ss} ===");
+    Console.ResetColor();
+}
+
+ShelliftAPIBuild.Create()
+    .SelectCustomHeader(RenderHeader)
+    .Build();
+```
 
 ---
 
@@ -219,7 +256,8 @@ ShelliftAPIBuild.Create()
 - `Neon` — Neon glow style
 - `Retro` — Retro 80s style
 - ... and more
-
+## Custom Header (New!):
+`User-defined - full control over content, colors, borders, and layout`
 ## 💬 Prompt Styles
 
 - `Default` — BoxaraHS>
@@ -229,6 +267,8 @@ ShelliftAPIBuild.Create()
 - `SimpleArrow` — ➜ BoxaraHS $
 - `Brackets` — [BoxaraHS]>
 - `DoubleArrow` — >> BoxaraHS >>
+- `Custom`       -> User-defined (dynamic) 
+
 
 ---
 
@@ -304,6 +344,50 @@ ShelliftAPIBuild.Create()
 var customPrompt = CommandPromptTemplate.GetCustomPrompt("[MyApp]", ConsoleColor.Magenta);
 ```
 
+### 🎨 Custom Header
+
+You can define custom headers with full control over rendering.
+
+Using lambda:
+```
+.SelectCustomHeader(() =>
+{
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine($"╔══ {appName} v{appVersion} - {DateTime.Now} ══╗");
+    Console.ResetColor();
+})
+```
+## **Using method**:
+```
+private void RenderCustomHeader()
+{
+    string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    Console.ForegroundColor = ConsoleColor.Magenta;
+    Console.WriteLine($"╔═══════════════════════════════════════╗");
+    Console.WriteLine($"║  MyApp v1.0.0 - {time}               ║");
+    Console.WriteLine($"╚═══════════════════════════════════════╝");
+    Console.ResetColor();
+}
+
+.SelectCustomHeader(RenderCustomHeader)
+```
+
+⚠️ Cannot use both SelectShellHeaderTemplate and SelectCustomHeader together.
+### 🎨 Custom Dynamic Prompt
+
+You can define dynamic prompts that update every time the shell renders.
+
+Using lambda:
+.SelectCustomPrompt(() => $"{DateTime.Now:HH:mm:ss} > ", ConsoleColor.Cyan)
+
+Using method:
+private string GetPrompt()
+{
+    return $"[{Environment.UserName}@{Environment.MachineName}] ";
+}
+.SelectCustomPrompt(GetPrompt, ConsoleColor.Magenta)
+
+⚠️ Cannot use both SelectShellPrompt and SelectCustomPrompt together.
 ### 📄 TableFormatter for Structured Output
 
 Use `TableFormatterTemplate` to render structured tabular data with dynamic column widths and colors.
@@ -444,7 +528,19 @@ if (!ReflectionShellTemplate.ShellExists(shellName))
     // Command will not be registered
 }
 ```
+### 🧩 Prompt Selection
 
+Cannot use both SelectShellPrompt and SelectCustomPrompt together.
+
+✅ CORRECT: .SelectCustomPrompt(GetPrompt, ConsoleColor.Cyan)
+❌ WRONG: .SelectShellPrompt(PromptStyle.FullInfo).SelectCustomPrompt(GetPrompt)
+
+### 🧩 Header Selection
+
+Cannot use both SelectShellHeaderTemplate and SelectCustomHeader together.
+
+✅ CORRECT: .SelectCustomHeader(RenderCustomHeader)
+❌ WRONG: .SelectShellHeaderTemplate(HeaderStyle.Modern).SelectCustomHeader(RenderCustomHeader)
 ### 🔄 Framework Lifecycle
 
 | Phase | Action | Who |
@@ -491,4 +587,4 @@ This project is licensed under the **Apache License 2.0**.
 
 **Author:** JuliHyro Studios Workspace
  **Project:** BoxaraXLibrary.GenenicLib.LTS
- **Version:** 1.0.0-LTS
+ **Version:** 1.0.2-LTS

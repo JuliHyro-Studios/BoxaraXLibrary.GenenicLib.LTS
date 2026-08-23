@@ -90,13 +90,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             };
         }
 
-        public static List<PromptSegment> GetCustomPrompt(string customText, ConsoleColor color = ConsoleColor.Cyan)
+        public static List<PromptSegment> GetCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan)
         {
             return new List<PromptSegment>
-            {
-                new PromptSegment { Text = customText, Color = color },
-                new PromptSegment { Text = "> ", Color = ConsoleColor.Green }
-            };
+    {
+        new PromptSegment { Text = promptGenerator(), Color = color },
+        new PromptSegment { Text = " ", Color = ConsoleColor.White }
+    };
         }
     }
 }

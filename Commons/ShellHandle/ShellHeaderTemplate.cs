@@ -79,8 +79,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     break;
             }
         }
+        public static void ShowCustom(Action renderHeader)
+        {
+            string time = GetCurrentTime();
+            LogConsole.Clear(time);
+            renderHeader();
+        }
 
-        
         private static void ShowClassic(string name, string version, string commandsLoaded, string welcome, string time)
         {
             string line = new string('=', DEFAULT_WIDTH);

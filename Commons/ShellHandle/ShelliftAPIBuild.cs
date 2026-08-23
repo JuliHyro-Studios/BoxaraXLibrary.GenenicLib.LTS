@@ -20,9 +20,12 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
         private string? _appName = null;
         private string? _appVersion = null;
-
+        private bool _isCustomPromptSet = false;
+        private Func<string>? _customPromptGenerator;
+        private ConsoleColor _customPromptColor = ConsoleColor.Cyan;
         private ShelliftAPIBuild() { }
-
+        private bool _isCustomHeaderSet = false;
+        private Action? _customHeaderRenderer;
         public static ShelliftAPIBuild Create()
         {
             var stackTrace = new StackTrace(true);
@@ -102,9 +105,30 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _shellName = shellName;
             return this;
         }
+        public ShelliftAPIBuild SelectCustomHeader(Action renderHeader)
+        {
+            if (_isCustomHeaderSet)
+            {
+                throw new InvalidOperationException(
+                    "Cannot call SelectCustomHeader() after SelectShellHeaderTemplate() has been used. " +
+                    "Choose one: either built-in header OR custom header generator."
+                );
+            }
 
+            _isCustomHeaderSet = true;
+            _customHeaderRenderer = renderHeader;
+            return this;
+        }
         public ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string? welcomeMessage = null)
         {
+            if (_isCustomHeaderSet)
+            {
+                throw new InvalidOperationException(
+                    "Cannot call SelectShellHeaderTemplate() after SelectCustomHeader() has been used. " +
+                    "Choose one: either built-in header OR custom header generator."
+                );
+            }
+
             _headerStyle = style;
             if (!string.IsNullOrEmpty(welcomeMessage))
                 _headerWelcomeMessage = welcomeMessage;
@@ -113,11 +137,34 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
         public ShelliftAPIBuild SelectShellPrompt(PromptStyle style, string customName = "BoxaraHS")
         {
+            if (_isCustomPromptSet)
+            {
+                throw new InvalidOperationException(
+                    "Cannot call SelectShellPrompt() after SelectCustomPrompt() has been used. " +
+                    "Choose one: either built-in prompt styles OR custom prompt generator."
+                );
+            }
+
             _promptStyle = style;
             _promptCustomName = customName;
             return this;
         }
+        public ShelliftAPIBuild SelectCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan)
+        {
+            // 👇 NẾU ĐÃ CHỌN SHELL PROMPT TRƯỚC ĐÓ → THROW EXCEPTION
+            if (_promptStyle != PromptStyle.Default && _promptStyle != PromptStyle.Custom)
+            {
+                throw new InvalidOperationException(
+                    "Cannot call SelectCustomPrompt() after SelectShellPrompt() has been used. " +
+                    "Choose one: either built-in prompt styles OR custom prompt generator."
+                );
+            }
 
+            _isCustomPromptSet = true;
+            _customPromptGenerator = promptGenerator;
+            _customPromptColor = color;
+            return this;
+        }
         public ShelliftAPIBuild WithCustomHeader(string customHeader)
         {
             _headerWelcomeMessage = customHeader;
@@ -163,18 +210,38 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 {
                     CommandPromptTitleSEt.SetTitle(_consoleTitle, _titleReasons, DateTime.Now);
                 }
-                ReflectionShellTemplate.SetCurrentShell(_shellName);
+
                 _commands = ReflectionCommandShellTemplate.LoadCommandsForShell(_shellName);
+
                 string fullWelcomeMessage = $"{_headerWelcomeMessage}{_headerExtraInfo}";
-                ShellHeaderTemplate.Show(
-    _commands,
-    _headerWelcomeMessage,
-    _headerStyle,
-    _appName ?? "BoxaraHS",
-    _appVersion ?? "1.0.0"
-);
-                var promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
+
+                if (_isCustomHeaderSet && _customHeaderRenderer != null)
+                {
+                    ShellHeaderTemplate.ShowCustom(_customHeaderRenderer);
+                }
+                else
+                {
+                    ShellHeaderTemplate.Show(
+                        _commands,
+                        fullWelcomeMessage,
+                        _headerStyle,
+                        _appName ?? "BoxaraHS",
+                        _appVersion ?? "1.0.0"
+                    );
+                }
+
+                List<PromptSegment> promptSegments;
+                if (_isCustomPromptSet && _customPromptGenerator != null)
+                {
+                    promptSegments = CommandPromptTemplate.GetCustomPrompt(_customPromptGenerator, _customPromptColor);
+                }
+                else
+                {
+                    promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
+                }
+
                 ShellLoopTemplate.Run(promptSegments, _commands);
+
                 return codeint.SUCESS;
             }
             catch
@@ -183,7 +250,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             }
         }
 
-        public async System.Threading.Tasks.Task<int> BuildAsync()
+        public async Task<int> BuildAsync()
         {
             try
             {
@@ -196,14 +263,33 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
                 _commands = ReflectionCommandShellTemplate.LoadCommandsForShell(_shellName);
 
-                ShellHeaderTemplate.Show(
-                    _commands,
-                    _headerWelcomeMessage,
-                    _headerStyle,
-                    _appName ?? "BoxaraHS",      
-                    _appVersion ?? "1.0.0"      
-                );
-                var promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
+                string fullWelcomeMessage = $"{_headerWelcomeMessage}{_headerExtraInfo}";
+
+                if (_isCustomHeaderSet && _customHeaderRenderer != null)
+                {
+                    ShellHeaderTemplate.ShowCustom(_customHeaderRenderer);
+                }
+                else
+                {
+                    ShellHeaderTemplate.Show(
+                        _commands,
+                        fullWelcomeMessage,
+                        _headerStyle,
+                        _appName ?? "BoxaraHS",
+                        _appVersion ?? "1.0.0"
+                    );
+                }
+
+                List<PromptSegment> promptSegments;
+                if (_isCustomPromptSet && _customPromptGenerator != null)
+                {
+                    promptSegments = CommandPromptTemplate.GetCustomPrompt(_customPromptGenerator, _customPromptColor);
+                }
+                else
+                {
+                    promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
+                }
+
                 ShellLoopTemplate.Run(promptSegments, _commands);
 
                 return codeint.SUCESS;
