@@ -20,7 +20,7 @@
 - **External Command Support** — Register commands from external sources via `ExternalCommandManager`
 - **Fluent API** — Build shells with a clean, expressive fluent interface
 - **Rich Console UI** — 16+ header styles, 10+ prompt styles, table formatter, colored logs
-- **Cross-Platform** — Works on Windows, Linux, and macOS via .NET 10
+- **Cross-Platform** — Works on Windows, Linux, and macOS via .NET
 - **Lightweight** — Zero external dependencies, minimal footprint
 - **Extensible** — Easy to extend with custom commands, shells, and authentication handlers
 
@@ -40,7 +40,7 @@
 
 ### 🔧 Core Dependencies
 
-- **.NET 10** — Minimum required runtime
+- **.NET** — Minimum required runtime
 - **System.Reflection** — Command discovery and dynamic loading
 - **System.Text.Json** — Configuration and state serialization
 
@@ -88,7 +88,7 @@ Or using **Visual Studio**:
 ### 3. Locate the DLL
 
 ```
-BoxaraXLibrary.GenenicLib.LTS/bin/Release/net10.0/BoxaraXLibrary.GenenicLib.LTS.dll
+BoxaraXLibrary.GenenicLib.LTS/bin/Release/netxx.x/BoxaraXLibrary.GenenicLib.LTS.dll
 ```
 
 ### 4. (Optional) Pack to NuGet
@@ -587,4 +587,4 @@ This project is licensed under the **Apache License 2.0**.
 
 **Author:** JuliHyro Studios Workspace
  **Project:** BoxaraXLibrary.GenenicLib.LTS
- **Version:** 1.0.2-LTS
+ **Version:** 1.0.3-LTS
