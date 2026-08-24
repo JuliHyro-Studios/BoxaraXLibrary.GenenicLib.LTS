@@ -1,48 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
-using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
-namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
-{
-    public class PromptSegment
-    {
-        public string Text { get; set; } = string.Empty;
-        public ConsoleColor Color { get; set; } = ConsoleColor.White;
-    }
+﻿    using System;
+    using System.Collections.Generic;
+    using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
+    using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
 
-    public static class ShellLoopTemplate
+    namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
     {
-
-        public static void Run(List<PromptSegment> segments, List<ICommand> commands)
+        public class PromptSegment
         {
-            bool isRunning = true;
+            public string Text { get; set; } = string.Empty;
+            public ConsoleColor Color { get; set; } = ConsoleColor.White;
+        }
 
-            while (isRunning)
+        public static class ShellLoopTemplate
+        {
+            public static void Run(
+                List<PromptSegment> segments,
+                List<ICommand> commands,
+                Func<string>? inputProvider = null,
+                Action<string>? preProcessor = null,
+                Action<string, bool>? postProcessor = null,
+                Func<bool>? exitCondition = null)
             {
-                try
-                {
+                bool isRunning = true;
 
-                                        foreach (var segment in segments)
+                while (isRunning)
+                {
+                    try
                     {
-                        LogConsole.ForegroundColor = segment.Color;
-                        LogConsole.Write(segment.Text);
+                        foreach (var segment in segments)
+                        {
+                            LogConsole.ForegroundColor = segment.Color;
+                            LogConsole.Write(segment.Text);
+                        }
+                        LogConsole.ResetColor();
+
+                        string input;
+                        if (inputProvider != null)
+                        {
+                            input = inputProvider() ?? string.Empty;
+                        }
+                        else
+                        {
+                            input = Console.ReadLine()?.Trim() ?? string.Empty;
+                        }
+
+                        if (string.IsNullOrEmpty(input))
+                            continue;
+
+                        preProcessor?.Invoke(input);
+
+                        bool result = CommandProcessorTemplate.Process(input, commands);
+
+                        postProcessor?.Invoke(input, result);
+
+                        if (exitCondition != null && exitCondition())
+                        {
+                            isRunning = false;
+                        }
                     }
-                    LogConsole.ResetColor();
-
-                    string input = Console.ReadLine()?.Trim() ?? string.Empty;
-
-                    if (string.IsNullOrEmpty(input))
-                        continue;
-
-                    CommandProcessorTemplate.Process(input, commands);
-                }
-                catch (Exception ex)
-                {
-                    LogConsole.ForegroundColor = ConsoleColor.Red;
-                    LogConsole.WriteLine($"[X] Shell Loop encountered an error: {ex.Message}");
-                    LogConsole.ResetColor();
+                    catch (Exception ex)
+                    {
+                        LogConsole.ForegroundColor = ConsoleColor.Red;
+                        LogConsole.WriteLine($"[X] Shell Loop error: {ex.Message}");
+                        LogConsole.ResetColor();
+                    }
                 }
             }
         }
     }
-}

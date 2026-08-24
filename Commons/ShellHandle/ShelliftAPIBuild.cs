@@ -16,14 +16,19 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         private List<ICommand> _commands = null!;
         private string? _consoleTitle = null;
         private string[] _titleReasons = Array.Empty<string>();
-        private string _headerExtraInfo = "";  
-
+        private string _headerExtraInfo = "";
+        private Func<string>? _customInputProvider;
+        private Action<string>? _customPreProcessor;
+        private Action<string, bool>? _customPostProcessor;
+        private Func<bool>? _customExitCondition;
         private string? _appName = null;
         private string? _appVersion = null;
         private bool _isCustomPromptSet = false;
         private Func<string>? _customPromptGenerator;
         private ConsoleColor _customPromptColor = ConsoleColor.Cyan;
         private ShelliftAPIBuild() { }
+        private Func<List<PromptSegment>, List<ICommand>, Action>? _customLoopBuilder;
+
         private bool _isCustomHeaderSet = false;
         private Action? _customHeaderRenderer;
         public static ShelliftAPIBuild Create()
@@ -165,6 +170,29 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _customPromptColor = color;
             return this;
         }
+        public ShelliftAPIBuild WithInputProvider(Func<string> inputProvider)
+        {
+            _customInputProvider = inputProvider;
+            return this;
+        }
+
+        public ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor)
+        {
+            _customPreProcessor = preProcessor;
+            return this;
+        }
+
+        public ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor)
+        {
+            _customPostProcessor = postProcessor;
+            return this;
+        }
+
+        public ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition)
+        {
+            _customExitCondition = exitCondition;
+            return this;
+        }
         public ShelliftAPIBuild WithCustomHeader(string customHeader)
         {
             _headerWelcomeMessage = customHeader;
@@ -240,58 +268,23 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
                 }
 
-                ShellLoopTemplate.Run(promptSegments, _commands);
-
-                return codeint.SUCESS;
-            }
-            catch
-            {
-                return codeint.FAILED;
-            }
-        }
-
-        public async Task<int> BuildAsync()
-        {
-            try
-            {
-                LogConsole.Clear(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-
-                if (!string.IsNullOrEmpty(_consoleTitle))
+                if (_customLoopBuilder != null)
                 {
-                    CommandPromptTitleSEt.SetTitle(_consoleTitle, _titleReasons, DateTime.Now);
-                }
-
-                _commands = ReflectionCommandShellTemplate.LoadCommandsForShell(_shellName);
-
-                string fullWelcomeMessage = $"{_headerWelcomeMessage}{_headerExtraInfo}";
-
-                if (_isCustomHeaderSet && _customHeaderRenderer != null)
-                {
-                    ShellHeaderTemplate.ShowCustom(_customHeaderRenderer);
+                    var loopAction = _customLoopBuilder(promptSegments, _commands);
+                    loopAction();
                 }
                 else
                 {
-                    ShellHeaderTemplate.Show(
+                    ShellLoopTemplate.Run(
+                        promptSegments,
                         _commands,
-                        fullWelcomeMessage,
-                        _headerStyle,
-                        _appName ?? "BoxaraHS",
-                        _appVersion ?? "1.0.0"
+                        _customInputProvider,
+                        _customPreProcessor,
+                        _customPostProcessor,
+                        _customExitCondition
                     );
                 }
 
-                List<PromptSegment> promptSegments;
-                if (_isCustomPromptSet && _customPromptGenerator != null)
-                {
-                    promptSegments = CommandPromptTemplate.GetCustomPrompt(_customPromptGenerator, _customPromptColor);
-                }
-                else
-                {
-                    promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
-                }
-
-                ShellLoopTemplate.Run(promptSegments, _commands);
-
                 return codeint.SUCESS;
             }
             catch
@@ -299,5 +292,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 return codeint.FAILED;
             }
         }
+
+   
     }
 }
