@@ -291,6 +291,36 @@ Thread.Sleep(3000); // Wait 3 seconds after each command
 .WithExitCondition(() => false) // Framework still controls exit
 .Build();
 ```
+### Shell Title Customization (NEW)
+You can hook into the title setting process with pre/post actions.
+```
+ShelliftAPIBuild.Create()
+.SelectCommandShellLoad("MyShell")
+.WithTitle("My App - Main Shell", "Starting application")
+.WithTitlePreAction((title, reasons, timestamp, file) =>
+{
+Console.WriteLine("[DEBUG] About to set title: {title}"); }) .WithTitlePostAction((title, reasons, timestamp, file) => { Console.WriteLine("[DEBUG] Title set: {title} at {timestamp:HH:mm:ss}");
+})
+.Build();
+```
+
+### Command Processor Hooks (NEW)
+
+You can hook into command execution before and after processing.
+```
+ShelliftAPIBuild.Create()
+.SelectCommandShellLoad("MyShell")
+.WithTitle("My App", "Starting...")
+.SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+.SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
+.WithAppName("MyApp")
+.WithAppVersion("1.0.0")
+.WithCommandPreAction((command, args) =>
+{
+Console.WriteLine("[DEBUG] Executing: {command} with args: {string.Join(", ", args)}"); }) .WithCommandPostAction((command, args, success) => { Console.WriteLine("[DEBUG] '{command}' => {(success ? "OK" : "FAIL")}");
+})
+.Build();
+```
 ## 💬 Prompt Styles
 
 - `Default` — BoxaraHS>
@@ -409,7 +439,7 @@ private void RenderCustomHeader()
 ### 🎨 Custom Dynamic Prompt
 
 You can define dynamic prompts that update every time the shell renders.
-
+```
 Using lambda:
 .SelectCustomPrompt(() => $"{DateTime.Now:HH:mm:ss} > ", ConsoleColor.Cyan)
 
@@ -419,7 +449,7 @@ private string GetPrompt()
     return $"[{Environment.UserName}@{Environment.MachineName}] ";
 }
 .SelectCustomPrompt(GetPrompt, ConsoleColor.Magenta)
-
+```
 ⚠️ Cannot use both SelectShellPrompt and SelectCustomPrompt together.
 ### 📄 TableFormatter for Structured Output
 
@@ -591,7 +621,23 @@ Cannot use both SelectShellHeaderTemplate and SelectCustomHeader together.
 | **Shell Build** | `ShelliftAPIBuild.Build()` creates and runs the shell | Framework |
 | **Command Processing** | `CommandProcessorTemplate.Process()` handles input, merges external commands | Framework |
 | **External Commands** | `ExternalCommandManager` holds commands registered by the app | App (via framework API) |
+### 🧩 Title Customization
 
+Use `WithTitlePreAction` and `WithTitlePostAction` to hook into title setting:
+
+- `WithTitlePreAction` — runs before the title is set (logging, debugging)
+- `WithTitlePostAction` — runs after the title is set (logging, tracking)
+
+⚠️ **Read-only**: You cannot modify the title, reasons, timestamp, or filename inside these actions.
+
+### 🧩 Command Processor Hooks
+
+Use `WithCommandPreAction` and `WithCommandPostAction` to hook into command execution:
+
+- `WithCommandPreAction` — runs before command lookup (logging, tracking)
+- `WithCommandPostAction` — runs after command execution with result (logging, metrics)
+
+⚠️ **Read-only**: You cannot modify the command name, arguments, or execution flow inside these actions.
 ### 🔧 Diagnostics & Debugging
 
 - **Enable verbose logging** by using `LogConsole` with appropriate log levels.
@@ -611,12 +657,15 @@ var externalCount = ExternalCommandManager.GetExternalCommands().Count;
 3. **✅ ALWAYS** use `ExternalCommandManager` to register external commands
 4. **✅ ALWAYS** check `ShellExists()` before registering commands for a shell
 5. **✅ ALWAYS** call `ShellRegistry.Initialize()` before opening a shell
-6. **❌ NEVER** use `Assembly.LoadFrom` without a collectible context
-7. **❌ NEVER** hardcode shell names in framework extensions
-8. **❌ NEVER** hold references to types from unloaded assemblies
-9. **❌ NEVER** ignore thread safety when accessing shared state
-10. **❌ NEVER** call `Build()` from a non-`IShell` class
-
+6. **✅ ALWAYS** use `WithTitlePreAction` / `WithTitlePostAction` to hook into title changes
+7. **✅ ALWAYS** use `WithCommandPreAction` / `WithCommandPostAction` to hook into command execution
+8. **❌ NEVER** use `Assembly.LoadFrom` without a collectible context
+9. **❌ NEVER** hardcode shell names in framework extensions
+10 **❌ NEVER** hold references to types from unloaded assemblies
+11 **❌ NEVER** ignore thread safety when accessing shared state
+12 **❌ NEVER** call `Build()` from a non-`IShell` class
+13 **❌ NEVER** modify title, reasons, timestamp, or filename inside pre/post actions (read-only)
+14. **❌ NEVER** modify command name, arguments, or execution flow inside pre/post actions
 ## 📄 License
 
 This project is licensed under the **Apache License 2.0**.
@@ -641,4 +690,4 @@ limitations under the License.
 
  ## **Author:** JuliHyro Studios Workspace
  ## **Project:** BoxaraXLibrary.GenenicLib.LTS  
- ## **Version:** 1.0.4-LTS
+ ## **Version:** 1.0.5-LTS

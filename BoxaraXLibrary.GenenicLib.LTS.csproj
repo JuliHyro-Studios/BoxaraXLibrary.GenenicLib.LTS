@@ -7,17 +7,20 @@
 		<Nullable>enable</Nullable>
 		<AssemblyName>BoxaraXLibrary.GenenicLib.LTS</AssemblyName>
 		<PackageId>BoxaraXLibrary.GenenicLib.LTS</PackageId>
-		<Version>1.0.4</Version>
+		<Version>1.0.5</Version>
 		<Authors>JuliHyro Studios Workspace</Authors>
 		<Company>JuliHyro Studios Workspace</Company>
 		<Product>BoxaraXLibrary.GenenicLib.LTS</Product>
+		<Copyright>Copyright © 2026 JuliHyro Studios Workspace</Copyright>
 		<Description>Core framework for building shell-based CLI applications with command handling, rich console UI, and fluent API.</Description>
 		<PackageTags>shell;cli;command;framework;dotnet;console</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/releases</PackageReleaseNotes>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 

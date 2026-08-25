@@ -28,9 +28,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         private ConsoleColor _customPromptColor = ConsoleColor.Cyan;
         private ShelliftAPIBuild() { }
         private Func<List<PromptSegment>, List<ICommand>, Action>? _customLoopBuilder;
-
         private bool _isCustomHeaderSet = false;
-        private Action? _customHeaderRenderer;
+        private Action? _customHeaderRenderer;  
+        private Action<string, string[], DateTime, string>? _titlePreAction;
+        private Action<string, string[], DateTime, string>? _titlePostAction;
+        private Action<string, string[]>? _commandPreAction;
+        private Action<string, string[], bool>? _commandPostAction;
+
         public static ShelliftAPIBuild Create()
         {
             var stackTrace = new StackTrace(true);
@@ -156,7 +160,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         }
         public ShelliftAPIBuild SelectCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan)
         {
-            // 👇 NẾU ĐÃ CHỌN SHELL PROMPT TRƯỚC ĐÓ → THROW EXCEPTION
             if (_promptStyle != PromptStyle.Default && _promptStyle != PromptStyle.Custom)
             {
                 throw new InvalidOperationException(
@@ -208,14 +211,34 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _promptCustomName = customText;
             return this;
         }
+        public ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction)
+        {
+            _commandPreAction = preAction;
+            return this;
+        }
 
+        public ShelliftAPIBuild WithCommandPostAction(Action<string, string[], bool> postAction)
+        {
+            _commandPostAction = postAction;
+            return this;
+        }
         public ShelliftAPIBuild WithTitle(string title, params string[] reasons)
         {
             _consoleTitle = title;
             _titleReasons = reasons;
             return this;
         }
+        public ShelliftAPIBuild WithTitlePreAction(Action<string, string[], DateTime, string> preAction)
+        {
+            _titlePreAction = preAction;
+            return this;
+        }
 
+        public ShelliftAPIBuild WithTitlePostAction(Action<string, string[], DateTime, string> postAction)
+        {
+            _titlePostAction = postAction;
+            return this;
+        }
         public ShelliftAPIBuild WithAppName(string appName)
         {
             _appName = appName ?? "BoxaraHS";
@@ -236,7 +259,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
                 if (!string.IsNullOrEmpty(_consoleTitle))
                 {
-                    CommandPromptTitleSEt.SetTitle(_consoleTitle, _titleReasons, DateTime.Now);
+                    CommandPromptTitleSEt.SetTitle(
+                        _consoleTitle,
+                        _titleReasons,
+                        DateTime.Now,
+                        preAction: _titlePreAction,
+                        postAction: _titlePostAction
+                    );
                 }
 
                 _commands = ReflectionCommandShellTemplate.LoadCommandsForShell(_shellName);
@@ -268,22 +297,16 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
                 }
 
-                if (_customLoopBuilder != null)
-                {
-                    var loopAction = _customLoopBuilder(promptSegments, _commands);
-                    loopAction();
-                }
-                else
-                {
-                    ShellLoopTemplate.Run(
-                        promptSegments,
-                        _commands,
-                        _customInputProvider,
-                        _customPreProcessor,
-                        _customPostProcessor,
-                        _customExitCondition
-                    );
-                }
+                ShellLoopTemplate.Run(
+                    promptSegments,
+                    _commands,
+                    _customInputProvider,
+                    _customPreProcessor,
+                    _customPostProcessor,
+                    _customExitCondition,
+                    _commandPreAction,
+                    _commandPostAction
+                );
 
                 return codeint.SUCESS;
             }
@@ -293,6 +316,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             }
         }
 
-   
+
     }
 }
