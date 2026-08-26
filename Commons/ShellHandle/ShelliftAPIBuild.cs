@@ -34,7 +34,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         private Action<string, string[], DateTime, string>? _titlePostAction;
         private Action<string, string[]>? _commandPreAction;
         private Action<string, string[], bool>? _commandPostAction;
-
+        private Action? _onShellStart;
+        private Action? _onShellEnd;
+        private Action<Exception>? _onShellError;
+        private Action<List<ICommand>>? _onCommandsLoaded;
+        private Action<string>? _onCommandExecuted;
+        private Action<string>? _onCommandFailed;
+        private Action<string>? _onPromptRendered;
         public static ShelliftAPIBuild Create()
         {
             var stackTrace = new StackTrace(true);
@@ -222,6 +228,49 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _commandPostAction = postAction;
             return this;
         }
+
+        public ShelliftAPIBuild OnShellStart(Action onStart)
+        {
+            _onShellStart = onStart;
+            return this;
+        }
+
+        public ShelliftAPIBuild OnShellEnd(Action onEnd)
+        {
+            _onShellEnd = onEnd;
+            return this;
+        }
+
+        public ShelliftAPIBuild OnShellError(Action<Exception> onError)
+        {
+            _onShellError = onError;
+            return this;
+        }
+
+        public ShelliftAPIBuild OnCommandsLoaded(Action<List<ICommand>> onLoaded)
+        {
+            _onCommandsLoaded = onLoaded;
+            return this;
+        }
+
+        public ShelliftAPIBuild OnCommandExecuted(Action<string> onExecuted)
+        {
+            _onCommandExecuted = onExecuted;
+            return this;
+        }
+
+        public ShelliftAPIBuild OnCommandFailed(Action<string> onFailed)
+        {
+            _onCommandFailed = onFailed;
+            return this;
+        }
+
+        public ShelliftAPIBuild OnPromptRendered(Action<string> onRendered)
+        {
+            _onPromptRendered = onRendered;
+            return this;
+        }
+
         public ShelliftAPIBuild WithTitle(string title, params string[] reasons)
         {
             _consoleTitle = title;
@@ -255,6 +304,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         {
             try
             {
+                _onShellStart?.Invoke();
+
                 LogConsole.Clear(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
                 if (!string.IsNullOrEmpty(_consoleTitle))
@@ -269,6 +320,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 }
 
                 _commands = ReflectionCommandShellTemplate.LoadCommandsForShell(_shellName);
+
+                _onCommandsLoaded?.Invoke(_commands);
 
                 string fullWelcomeMessage = $"{_headerWelcomeMessage}{_headerExtraInfo}";
 
@@ -297,21 +350,44 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
                 }
 
+                foreach (var segment in promptSegments)
+                {
+                    _onPromptRendered?.Invoke(segment.Text);
+                }
+
+                var wrappedCommandPostAction = new Action<string, string[], bool>((cmd, args, success) =>
+                {
+                    _commandPostAction?.Invoke(cmd, args, success);
+
+                    if (success)
+                    {
+                        _onCommandExecuted?.Invoke(cmd);
+                    }
+                    else
+                    {
+                        _onCommandFailed?.Invoke(cmd);
+                    }
+                });
+
                 ShellLoopTemplate.Run(
-                    promptSegments,
-                    _commands,
-                    _customInputProvider,
-                    _customPreProcessor,
-                    _customPostProcessor,
-                    _customExitCondition,
-                    _commandPreAction,
-                    _commandPostAction
-                );
+            promptSegments,
+            _commands,
+            _shellName, 
+            _customInputProvider,
+            _customPreProcessor,
+            _customPostProcessor,
+            _customExitCondition,
+            _commandPreAction,
+            _commandPostAction
+        );
+
+                _onShellEnd?.Invoke();
 
                 return codeint.SUCESS;
             }
-            catch
+            catch (Exception ex)
             {
+                _onShellError?.Invoke(ex);
                 return codeint.FAILED;
             }
         }

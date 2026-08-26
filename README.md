@@ -27,9 +27,8 @@
 - **Cross-Platform** — Works on Windows, Linux, and macOS via .NET
 - **Lightweight** — Zero external dependencies, minimal footprint
 - **Extensible** — Easy to extend with custom commands, shells, and authentication handlers
-
-### 🏗️ Architecture Overview
-
+- **Shell Events** — Subscribe to shell lifecycle events (start, end, error, command execution, prompt render)
+- **Real-Time Logging** — Log messages can appear while user is typing, without interrupting input (via `LogManager`)
 - **Interface Layer** — `ICommand`, `IShell`, `IAuthenticator` define the core contracts
 - **Shell Engine** — Registry, loop, templates, and API build system with delegate hooks for runtime customization
 - **Command Discovery** — Automatic reflection-based loading, external command registration, and dynamic command injection
@@ -44,6 +43,7 @@
 - **Educational Shells** — Learn command design patterns through hands-on shell building
 - **Plugin-Based Applications** — Host external commands and extensions via `ExternalCommandManager`
 - **Custom Admin Panels** — Create domain-specific shells with tailored user experience
+- **Monitoring & Telemetry** — Track shell usage, command execution, and errors
 
 ### 🔧 Core Dependencies
 
@@ -58,13 +58,17 @@
 ### Via NuGet Package
 
 ```
+
 dotnet add package BoxaraXLibrary.GenenicLib.LTS
+
 ```
 
 ### Via Project Reference
 
 ```
+
 <ProjectReference Include="..\BoxaraXLibrary.GenenicLib.LTS\BoxaraXLibrary.GenenicLib.LTS.csproj" />
+
 ```
 
 ---
@@ -74,8 +78,10 @@ dotnet add package BoxaraXLibrary.GenenicLib.LTS
 ### 1. Clone the repository
 
 ```
+
 git clone https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS
 cd BoxaraXLibrary.GenenicLib.LTS
+
 ```
 
 ### 2. Build the project
@@ -83,7 +89,9 @@ cd BoxaraXLibrary.GenenicLib.LTS
 Using **.NET CLI**:
 
 ```
+
 dotnet build -c Release
+
 ```
 
 Or using **Visual Studio**:
@@ -95,13 +103,17 @@ Or using **Visual Studio**:
 ### 3. Locate the DLL
 
 ```
+
 BoxaraXLibrary.GenenicLib.LTS/bin/Release/netxx.x/BoxaraXLibrary.GenenicLib.LTS.dll
+
 ```
 
 ### 4. (Optional) Pack to NuGet
 
 ```
+
 dotnet pack -c Release
+
 ```
 
 ---
@@ -111,6 +123,7 @@ dotnet pack -c Release
 ### 1. Implement a Shell
 
 ```
+
 using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
 using BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle;
 
@@ -134,11 +147,13 @@ public class MyShell : IShell
             .Build();
     }
 }
+
 ```
 
 ### 2. Implement a Command
 
 ```
+
 using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
 
 public class HelloCommand : ICommand
@@ -159,13 +174,15 @@ public class HelloCommand : ICommand
 
     public void ParameterExecute(string[] args) { }
 }
-```
 
+```
 ### 3. Register and Run
 
 ```
+
 ShellRegistry.Initialize();
 ShelliftAPIBuild.OpenShellWithResult("MyShell");
+
 ```
 
 ---
@@ -195,57 +212,65 @@ ShelliftAPIBuild.OpenShellWithResult("MyShell");
 | `CommandVersion` | Version string |
 | `Parameter` | List of supported parameters |
 
----
-
 ## 🛠️ Shell API (Fluent)
 
 ```
+
 ShelliftAPIBuild.Create()
-    .SelectCommandShellLoad("MyShell")
-    .WithTitle("My App", "Starting...")
-    .SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
-    .WithExtraHeaderInfo("External commands: 5")
-    .SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
-    .WithAppName("MyApp")
-    .WithAppVersion("1.0.0")
-    .Build();
+.SelectCommandShellLoad("MyShell")
+.WithTitle("My App", "Starting...")
+.SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+.WithExtraHeaderInfo("External commands: 5")
+.SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
+.WithAppName("MyApp")
+.WithAppVersion("1.0.0")
+.Build();
+
 ```
+
 ### Or with a custom prompt:
+
 ```
+
 ShelliftAPIBuild.Create()
-    .SelectCommandShellLoad("MyShell")
-    .WithTitle("My App", "Starting...")
-    .SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
-    .WithExtraHeaderInfo("External commands: 5")
-    .SelectCustomPrompt(() => $"{DateTime.Now:HH:mm:ss} > ", ConsoleColor.Cyan)
-    .WithAppName("MyApp")
-    .WithAppVersion("1.0.0")
-    .Build();
+.SelectCommandShellLoad("MyShell")
+.WithTitle("My App", "Starting...")
+.SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+.WithExtraHeaderInfo("External commands: 5")
+.SelectCustomPrompt(() => $"{DateTime.Now:HH:mm:ss} > ", ConsoleColor.Cyan)
+.WithAppName("MyApp")
+.WithAppVersion("1.0.0")
+.Build();
+
 ```
+
 ### Custom Header! (new):
+
 ```
+
 ShelliftAPIBuild.Create()
-    .SelectCustomHeader(() =>
-    {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("╔═══════════════════════════════════╗");
-        Console.WriteLine($"║  MyApp v1.0.0 - {DateTime.Now}  ║");
-        Console.WriteLine("╚═══════════════════════════════════╝");
-        Console.ResetColor();
-    })
-    .Build();
+.SelectCustomHeader(() =>
+{
+Console.ForegroundColor = ConsoleColor.Cyan;
+Console.WriteLine("╔═══════════════════════════════════╗");
+Console.WriteLine($"║  MyApp v1.0.0 - {DateTime.Now}  ║");
+Console.WriteLine("╚═══════════════════════════════════╝");
+Console.ResetColor();
+})
+.Build();
 
 // Or use a method
 private void RenderHeader()
 {
-    Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.WriteLine($"=== MyApp v1.0.0 - {DateTime.Now:HH:mm:ss} ===");
-    Console.ResetColor();
+Console.ForegroundColor = ConsoleColor.Yellow;
+Console.WriteLine($"=== MyApp v1.0.0 - {DateTime.Now:HH:mm:ss} ===");
+Console.ResetColor();
 }
 
 ShelliftAPIBuild.Create()
-    .SelectCustomHeader(RenderHeader)
-    .Build();
+.SelectCustomHeader(RenderHeader)
+.Build();
+
 ```
 
 ---
@@ -268,7 +293,9 @@ ShelliftAPIBuild.Create()
 ### Shell Loop Customization (NEW)
 
 You can hook into the shell loop using delegates without breaking the core loop.
+
 ```
+
 ShelliftAPIBuild.Create()
 .SelectCommandShellLoad("MyShell")
 .WithTitle("My App", "Starting...")
@@ -290,24 +317,35 @@ Thread.Sleep(3000); // Wait 3 seconds after each command
 })
 .WithExitCondition(() => false) // Framework still controls exit
 .Build();
+
 ```
+
 ### Shell Title Customization (NEW)
 You can hook into the title setting process with pre/post actions.
+
 ```
+
 ShelliftAPIBuild.Create()
 .SelectCommandShellLoad("MyShell")
 .WithTitle("My App - Main Shell", "Starting application")
 .WithTitlePreAction((title, reasons, timestamp, file) =>
 {
-Console.WriteLine("[DEBUG] About to set title: {title}"); }) .WithTitlePostAction((title, reasons, timestamp, file) => { Console.WriteLine("[DEBUG] Title set: {title} at {timestamp:HH:mm:ss}");
+Console.WriteLine($"[DEBUG] About to set title: {title}");
+})
+.WithTitlePostAction((title, reasons, timestamp, file) =>
+{
+    Console.WriteLine($"[DEBUG] Title set: {title} at {timestamp:HH:mm:ss}");
 })
 .Build();
+
 ```
 
 ### Command Processor Hooks (NEW)
 
 You can hook into command execution before and after processing.
+
 ```
+
 ShelliftAPIBuild.Create()
 .SelectCommandShellLoad("MyShell")
 .WithTitle("My App", "Starting...")
@@ -317,10 +355,16 @@ ShelliftAPIBuild.Create()
 .WithAppVersion("1.0.0")
 .WithCommandPreAction((command, args) =>
 {
-Console.WriteLine("[DEBUG] Executing: {command} with args: {string.Join(", ", args)}"); }) .WithCommandPostAction((command, args, success) => { Console.WriteLine("[DEBUG] '{command}' => {(success ? "OK" : "FAIL")}");
+Console.WriteLine($"[DEBUG] Executing: {command} with args: {string.Join(", ", args)}");
+})
+.WithCommandPostAction((command, args, success) =>
+{
+    Console.WriteLine($"[DEBUG] '{command}' => {(success ? "OK" : "FAIL")}");
 })
 .Build();
+
 ```
+
 ## 💬 Prompt Styles
 
 - `Default` — BoxaraHS>
@@ -330,34 +374,69 @@ Console.WriteLine("[DEBUG] Executing: {command} with args: {string.Join(", ", ar
 - `SimpleArrow` — ➜ BoxaraHS $
 - `Brackets` — [BoxaraHS]>
 - `DoubleArrow` — >> BoxaraHS >>
-- `Custom`       -> User-defined (dynamic) 
-
+- `Custom`       -> User-defined (dynamic)
 
 ---
 
 ## 📝 Logging
 
 ```
+
 LogConsole.WriteLine("Hello", DateTime.Now.ToString());
 LogConsole.Clear(IsShowShell: true);
 LogConsole.ForegroundColor = ConsoleColor.Green;
+
 ```
 
----
+## 📝 Real-Time Logging (NEW)
+
+The framework provides `LogManager` for real-time logging while the shell is running.
+
+```csharp
+using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
+
+// Log from anywhere
+LogManager.Log("This log appears while user is typing");
+
+// Background task example
+Task.Run(async () =>
+{
+    int count = 0;
+
+    while (true)
+    {
+        await Task.Delay(5000);
+        count++;
+
+        LogManager.Log($"Background log {count}");
+    }
+});
+```
+
+### ✨ Features
+
+- **Real-Time Logging** — Logs appear immediately without blocking user input.
+- **Automatic Prompt Re-Rendering** — The prompt automatically re-renders after a log message.
+- **Continuous Input** — Users can continue typing while background logs arrive.
+- **Full Backspace Support** — Backspace handling remains functional while logging.
+- **Thread-Safe Rendering** — Use `lock (LogManager.RenderLock)` for custom rendering.
+
+> ⚠️ **Important:** Do not use `Console.WriteLine()` directly while the shell is running. Use `LogManager.Log()` instead.
 
 ## 🚀 Advanced / Senior
 
-  **🎯 Target Audience:** Senior developers, architects, and engineers building complex CLI applications or extending the framework itself.
+**🎯 Target Audience:** Senior developers, architects, and engineers building complex CLI applications or extending the framework itself.
 
 ### 🧠 Reflection-Based Command Discovery
 
 The framework uses **assembly scanning** to automatically discover and register commands. All types implementing `ICommand` are automatically loaded via reflection.
 
 ```
+
 // Assembly scanning example
 var commandTypes = AppDomain.CurrentDomain.GetAssemblies()
-    .SelectMany(s => s.GetTypes())
-    .Where(t => typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+.SelectMany(s => s.GetTypes())
+.Where(t => typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
     .Where(t => t.GetCustomAttribute<NonLoadableCommandAttribute>() == null);
 
 foreach (var type in commandTypes)
@@ -365,6 +444,7 @@ foreach (var type in commandTypes)
     var instance = (ICommand)Activator.CreateInstance(type);
     RegisterCommand(instance);
 }
+
 ```
 
 ### 🧩 External Command Registration
@@ -372,11 +452,13 @@ foreach (var type in commandTypes)
 Use `ExternalCommandManager` to inject commands from external sources into the shell without modifying the core assembly.
 
 ```
+
 // Register external commands
 ExternalCommandManager.RegisterExternalCommands(externalCommands);
 
 // Retrieve merged command list
 var allCommands = ExternalCommandManager.MergeCommands(coreCommands);
+
 ```
 
 ### 📦 AssemblyLoadContext for Dynamic Loading
@@ -384,12 +466,14 @@ var allCommands = ExternalCommandManager.MergeCommands(coreCommands);
 Use **collectible AssemblyLoadContext** to load external assemblies with proper isolation and unloadability.
 
 ```
+
 var context = new AssemblyLoadContext("ExternalContext", isCollectible: true);
 var assembly = context.LoadFromAssemblyPath(assemblyPath);
 var instance = (ICommand)Activator.CreateInstance(type);
 
 // Unload when no longer needed
 context.Unload();
+
 ```
 
 ### 🛠️ Custom Header & Prompt Styles
@@ -397,6 +481,7 @@ context.Unload();
 Extend `ShellHeaderTemplate` and `CommandPromptTemplate` to implement custom UI styles.
 
 ```
+
 // Custom header style
 ShelliftAPIBuild.Create()
     .SelectShellHeaderTemplate(HeaderStyle.Custom, "Custom header")
@@ -405,6 +490,7 @@ ShelliftAPIBuild.Create()
 
 // Custom prompt style
 var customPrompt = CommandPromptTemplate.GetCustomPrompt("[MyApp]", ConsoleColor.Magenta);
+
 ```
 
 ### 🎨 Custom Header
@@ -412,16 +498,22 @@ var customPrompt = CommandPromptTemplate.GetCustomPrompt("[MyApp]", ConsoleColor
 You can define custom headers with full control over rendering.
 
 Using lambda:
+
 ```
+
 .SelectCustomHeader(() =>
 {
     Console.ForegroundColor = ConsoleColor.Cyan;
     Console.WriteLine($"╔══ {appName} v{appVersion} - {DateTime.Now} ══╗");
     Console.ResetColor();
 })
+
 ```
+
 ## **Using method**:
+
 ```
+
 private void RenderCustomHeader()
 {
     string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -433,13 +525,16 @@ private void RenderCustomHeader()
 }
 
 .SelectCustomHeader(RenderCustomHeader)
+
 ```
 
 ⚠️ Cannot use both SelectShellHeaderTemplate and SelectCustomHeader together.
 ### 🎨 Custom Dynamic Prompt
 
 You can define dynamic prompts that update every time the shell renders.
+
 ```
+
 Using lambda:
 .SelectCustomPrompt(() => $"{DateTime.Now:HH:mm:ss} > ", ConsoleColor.Cyan)
 
@@ -449,19 +544,23 @@ private string GetPrompt()
     return $"[{Environment.UserName}@{Environment.MachineName}] ";
 }
 .SelectCustomPrompt(GetPrompt, ConsoleColor.Magenta)
+
 ```
+
 ⚠️ Cannot use both SelectShellPrompt and SelectCustomPrompt together.
 ### 📄 TableFormatter for Structured Output
 
 Use `TableFormatterTemplate` to render structured tabular data with dynamic column widths and colors.
 
 ```
+
 var table = new TableFormatterTemplate();
 table.AddColumn("Name", ConsoleColor.Yellow, 15);
 table.AddColumn("Value", ConsoleColor.Cyan, 20);
 table.AddRow("Key1", "Value1");
 table.AddRow("Key2", "Value2");
 table.Render();
+
 ```
 
 ### 🔐 QuestionShellTemplate for User Interaction
@@ -469,6 +568,7 @@ table.Render();
 Prompt users with timeout support and customizable confirmation/cancel keys.
 
 ```
+
 var confirmed = QuestionShellTemplate.ShowQuestion(
     message: "Do you want to proceed?",
     confirmText: "Y",
@@ -482,6 +582,7 @@ if (confirmed)
 {
     // Proceed with operation
 }
+
 ```
 
 ### 🧵 LogConsole with Shell-Aware Clearing
@@ -489,8 +590,10 @@ if (confirmed)
 Use `LogConsole.Clear()` with `IsShowShell` to automatically re-render the current shell after clearing.
 
 ```
+
 // Clear and re-display the current shell
 LogConsole.Clear(IsShowShell: true);
+
 ```
 
 ### 🧠 ReflectionShellTemplate for Shell Discovery
@@ -498,6 +601,7 @@ LogConsole.Clear(IsShowShell: true);
 Programmatically discover shells and retrieve the current active shell instance.
 
 ```
+
 // Get current shell name
 string currentShell = ReflectionShellTemplate.GetCurrentShell();
 
@@ -506,6 +610,7 @@ var shell = ReflectionShellTemplate.GetCurrentShellObject();
 
 // List all available shells
 string[] shellNames = ReflectionShellTemplate.GetShellNames();
+
 ```
 
 ### ⚡ Performance Considerations
@@ -528,13 +633,37 @@ string[] shellNames = ReflectionShellTemplate.GetShellNames();
 
 ## ⚠️ IMPORTANT — Framework Critical Notes
 
-  **🔴 MUST READ:** These are critical considerations for using the framework in production-grade applications.
+**🔴 MUST READ:** These are critical considerations for using the framework in production-grade applications.
+### Shell Events (NEW)
+
+You can subscribe to shell lifecycle events without modifying the core flow.
+
+```
+
+ShelliftAPIBuild.Create()
+    .SelectCommandShellLoad("MyShell")
+    .WithTitle("My App", "Starting...")
+    .SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+    .SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
+    .WithAppName("MyApp")
+    .WithAppVersion("1.0.0")
+    .OnShellStart(() => Console.WriteLine("[EVENT] Shell started!"))
+    .OnShellEnd(() => Console.WriteLine("[EVENT] Shell ended!"))
+    .OnShellError((ex) => Console.WriteLine($"[EVENT] Error: {ex.Message}"))
+    .OnCommandsLoaded((cmds) => Console.WriteLine($"[EVENT] Loaded {cmds.Count} commands"))
+    .OnCommandExecuted((cmd) => Console.WriteLine($"[EVENT] Command '{cmd}' executed"))
+    .OnCommandFailed((cmd) => Console.WriteLine($"[EVENT] Command '{cmd}' failed"))
+    .OnPromptRendered((prompt) => Console.WriteLine($"[EVENT] Prompt: {prompt}"))
+    .Build();
+
+```
 
 ### 🧠 Assembly Loading & Memory Management
 
 The framework uses **AssemblyLoadContext** for external assembly loading. When loading external commands, always use a collectible context.
 
 ```
+
 // ✅ CORRECT: Using collectible context
 var context = new AssemblyLoadContext($"ExternalContext_{Guid.NewGuid()}", isCollectible: true);
 var assembly = context.LoadFromAssemblyPath(dllPath);
@@ -543,9 +672,10 @@ context.Unload();  // ⚠️ MUST call Unload() to free memory
 
 // ❌ WRONG: Loading into default context (cannot unload)
 var assembly = Assembly.LoadFrom(dllPath);  // MEMORY LEAK!
+
 ```
 
-  **🔴 Critical:** Using `Assembly.LoadFrom` or `Assembly.LoadFile` without a collectible context will cause **memory leaks** because the assembly cannot be unloaded. Always use `AssemblyLoadContext` for external assemblies.
+**🔴 Critical:** Using `Assembly.LoadFrom` or `Assembly.LoadFile` without a collectible context will cause **memory leaks** because the assembly cannot be unloaded. Always use `AssemblyLoadContext` for external assemblies.
 
 ### ⚡ Performance Considerations
 
@@ -564,6 +694,7 @@ var assembly = Assembly.LoadFrom(dllPath);  // MEMORY LEAK!
 - **Commands** are executed on the caller thread — implement your own threading if needed.
 
 ```
+
 // ✅ Thread-safe external command registration
 ExternalCommandManager.RegisterExternalCommands(commands);
 
@@ -576,6 +707,7 @@ public void Execute()
     // ... critical section ...
     }
 }
+
 ```
 
 ### 🧩 Shell & Command Compatibility
@@ -585,12 +717,15 @@ public void Execute()
 - **Commands with no shell** are skipped automatically.
 
 ```
+
 // ✅ Framework validates shell existence
 if (!ReflectionShellTemplate.ShellExists(shellName))
 {
     // Command will not be registered
 }
+
 ```
+
 ### 🧩 Prompt Selection
 
 Cannot use both SelectShellPrompt and SelectCustomPrompt together.
@@ -638,6 +773,19 @@ Use `WithCommandPreAction` and `WithCommandPostAction` to hook into command exec
 - `WithCommandPostAction` — runs after command execution with result (logging, metrics)
 
 ⚠️ **Read-only**: You cannot modify the command name, arguments, or execution flow inside these actions.
+### 🧩 Shell Events
+
+Use shell events to hook into the shell lifecycle:
+
+- `OnShellStart` — runs when shell begins
+- `OnShellEnd` — runs when shell ends
+- `OnShellError` — runs when shell encounters an error
+- `OnCommandsLoaded` — runs after commands are loaded
+- `OnCommandExecuted` — runs after a command executes successfully
+- `OnCommandFailed` — runs when a command fails
+- `OnPromptRendered` — runs when the prompt is rendered
+
+⚠️ **Read-only**: You cannot modify the shell flow or data inside these events.
 ### 🔧 Diagnostics & Debugging
 
 - **Enable verbose logging** by using `LogConsole` with appropriate log levels.
@@ -645,27 +793,33 @@ Use `WithCommandPreAction` and `WithCommandPostAction` to hook into command exec
 - **Check `ExternalCommandManager.GetExternalCommands()`** to verify external registrations.
 
 ```
+
 // Diagnostic examples
 var currentShell = ReflectionShellTemplate.GetCurrentShell();
 var externalCount = ExternalCommandManager.GetExternalCommands().Count;
+
 ```
 
 ### 📌 Summary of Critical Rules
 
-1. **✅ ALWAYS** use `AssemblyLoadContext` for external assembly loading
-2. **✅ ALWAYS** call `Unload()` when done with external assemblies
-3. **✅ ALWAYS** use `ExternalCommandManager` to register external commands
-4. **✅ ALWAYS** check `ShellExists()` before registering commands for a shell
-5. **✅ ALWAYS** call `ShellRegistry.Initialize()` before opening a shell
-6. **✅ ALWAYS** use `WithTitlePreAction` / `WithTitlePostAction` to hook into title changes
-7. **✅ ALWAYS** use `WithCommandPreAction` / `WithCommandPostAction` to hook into command execution
-8. **❌ NEVER** use `Assembly.LoadFrom` without a collectible context
-9. **❌ NEVER** hardcode shell names in framework extensions
-10 **❌ NEVER** hold references to types from unloaded assemblies
-11 **❌ NEVER** ignore thread safety when accessing shared state
-12 **❌ NEVER** call `Build()` from a non-`IShell` class
-13 **❌ NEVER** modify title, reasons, timestamp, or filename inside pre/post actions (read-only)
-14. **❌ NEVER** modify command name, arguments, or execution flow inside pre/post actions
+1. **✅ ALWAYS** use `AssemblyLoadContext` for external assembly loading.
+2. **✅ ALWAYS** call `Unload()` when done with external assemblies.
+3. **✅ ALWAYS** use `ExternalCommandManager` to register external commands.
+4. **✅ ALWAYS** check `ShellExists()` before registering commands for a shell.
+5. **✅ ALWAYS** call `ShellRegistry.Initialize()` before opening a shell.
+6. **✅ ALWAYS** use `WithTitlePreAction` / `WithTitlePostAction` to hook into title changes.
+7. **✅ ALWAYS** use `WithCommandPreAction` / `WithCommandPostAction` to hook into command execution.
+8. **✅ ALWAYS** use `OnShellStart`, `OnShellEnd`, `OnShellError` for shell lifecycle events.
+9. **✅ ALWAYS** use `OnCommandsLoaded`, `OnCommandExecuted`, `OnCommandFailed`, `OnPromptRendered` for runtime events.
+10. **❌ NEVER** modify shell data or flow inside event handlers.
+11. **❌ NEVER** use `Assembly.LoadFrom` without a collectible context.
+12. **❌ NEVER** hardcode shell names in framework extensions.
+13. **❌ NEVER** hold references to types from unloaded assemblies.
+14. **❌ NEVER** ignore thread safety when accessing shared state.
+15. **❌ NEVER** call `Build()` from a non-`IShell` class.
+16. **❌ NEVER** modify title, reasons, timestamp, or filename inside pre/post actions (read-only).
+17. **❌ NEVER** modify command name, arguments, or execution flow inside pre/post actions.
+
 ## 📄 License
 
 This project is licensed under the **Apache License 2.0**.
@@ -688,6 +842,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
- ## **Author:** JuliHyro Studios Workspace
- ## **Project:** BoxaraXLibrary.GenenicLib.LTS  
- ## **Version:** 1.0.5-LTS
+## **Author:** JuliHyro Studios Workspace
+## **Project:** BoxaraXLibrary.GenenicLib.LTS
+## **Version:** 1.0.6-LTS
