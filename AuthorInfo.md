@@ -31,7 +31,7 @@ We specialize in creating lightweight, cross-platform solutions for developers, 
 
 ## 📧 Contact
 
-For questions, suggestions, or contributions, please contact:
+For questions, suggestions, or collaborations:
 
-- **Email:** hoangbussines@gmail.com
-- **GitHub Issues:** https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/issues
+- **Email:** julihyro@example.com
+- **GitHub Issues:** https://github.com/JuliHyro-Studios
