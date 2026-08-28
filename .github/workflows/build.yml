@@ -44,6 +44,8 @@ jobs:
               exit 1
           }
 
+          Write-Host "Pushing to GitHub Packages..."
           dotnet nuget push "$pkg" --source github --skip-duplicate
 
+          Write-Host "Pushing to NuGet.org via Trusted Publishing (OIDC)..."
           dotnet nuget push "$pkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
