@@ -36,7 +36,16 @@ jobs:
       - name: Pack NuGet Package
         run: dotnet pack -c Release --no-build -o output_packages
 
-      - name: Push to NuGet.org via OIDC Token on v2 Endpoint
+      # ==========================================
+      # FUTURE SIGNPATH INTEGRATION PLACEHOLDER
+      # ==========================================
+      # - name: Sign NuGet Package with SignPath
+      #   shell: pwsh
+      #   run: |
+      #     Write-Host "SignPath code signing placeholder ready for future use."
+      #     # Add SignPath CLI submission scripts here when needed.
+
+      - name: Finalize Artifacts
         shell: pwsh
         run: |
           $pkg = (Get-ChildItem -Path "output_packages/*.nupkg" -Recurse | Select-Object -First 1).FullName
@@ -44,63 +53,4 @@ jobs:
               Write-Error "Package not found!"
               exit 1
           }
-
-          Write-Host "Requesting GitHub OIDC Token..."
-          $idTokenUrl = $env:ACTIONS_ID_TOKEN_REQUEST_URL
-          $idTokenJwtToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
-
-          if (-not $idTokenUrl -or -not $idTokenJwtToken) {
-              Write-Error "CRITICAL: OIDC environment variables are missing."
-              exit 1
-          }
-
-          $authUri = "$idTokenUrl&audience=api.nuget.org"
-          $headers = @{ "Authorization" = "bearer $idTokenJwtToken" }
-          
-          try {
-              $response = Invoke-RestMethod -Uri $authUri -Method Get -Headers $headers
-              $oidcToken = $response.value
-              Write-Host "Successfully obtained OIDC token from GitHub!"
-          } catch {
-              Write-Error "Failed to obtain OIDC token: $_"
-              exit 1
-          }
-
-          Write-Host "Pushing package to NuGet.org via OIDC on v2 endpoint..."
-          $nuGetPushUri = "https://www.nuget.org/api/v2/package"
-          
-          $boundary = [System.Guid]::NewGuid().ToString()
-          $fileBytes = [System.IO.File]::ReadAllBytes($pkg)
-          $fileName = [System.IO.Path]::GetFileName($pkg)
-
-          $bodyLines = (
-              "--$boundary",
-              "Content-Disposition: form-data; name=`"package`"; filename=`"$fileName`"",
-              "Content-Type: application/octet-stream",
-              "",
-              ""
-          ) -join "`r`n"
-
-          $bodyFooter = "`r`n--$boundary--`r`n"
-          $encoding = [System.Text.Encoding]::UTF8
-          $bodyBytes = $encoding.GetBytes($bodyLines) + $fileBytes + $encoding.GetBytes($bodyFooter)
-
-          $apiHeaders = @{
-              "X-NuGet-ApiKey" = $oidcToken
-              "Content-Type"   = "multipart/form-data; boundary=$boundary"
-          }
-
-          for ($attempt = 1; $attempt -le 3; $attempt++) {
-              try {
-                  Write-Host "OIDC v2 Push Attempt $attempt..."
-                  $webResponse = Invoke-WebRequest -Uri $nuGetPushUri -Method Put -Headers $apiHeaders -Body $bodyBytes -UseBasicParsing
-                  Write-Host "SUCCESS: Published to NuGet.org via OIDC token!"
-                  break
-              } catch {
-                  Write-Warning "Attempt $attempt failed: $_"
-                  if ($attempt -eq 3) {
-                      exit 1
-                  }
-                  Start-Sleep -Seconds 5
-              }
-          }
+          Write-Host "Build and packaging completed successfully for: $pkg"
