@@ -21,7 +21,8 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          channel: LTS
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'lts'
 
       - name: Restore dependencies
         run: dotnet restore
