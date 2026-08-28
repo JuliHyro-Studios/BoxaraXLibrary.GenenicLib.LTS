@@ -11,13 +11,14 @@
 
 ## 📖 About
 
-**BoxaraXLibrary** is a collection of utility libraries and system tools designed to support the development of .NET applications, with a focus on:
+**JuliHyro Studios Workspace** is a development organization focused on building high-quality **.NET utilities, system tools, and reusable libraries**.
 
-- **CLI & Shell Tools** — Building interactive command-line applications
-- **System Utilities** — Common system-level components
-- **Developer Productivity** — Tools that streamline development workflows
+We specialize in creating lightweight, cross-platform solutions for developers, engineers, and power users — with a strong emphasis on:
 
-The project provides reusable, lightweight, and cross-platform components for .NET developers.
+- **Simplicity** — Clean APIs, minimal dependencies
+- **Performance** — Optimized for speed and memory efficiency
+- **Extensibility** — Built with customization and integration in mind
+- **Developer Experience** — Intuitive design, fluent interfaces, clear documentation
 
 ---
 
