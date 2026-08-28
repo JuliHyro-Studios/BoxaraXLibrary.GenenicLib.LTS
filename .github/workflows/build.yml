@@ -36,7 +36,7 @@ jobs:
       - name: Pack NuGet Package
         run: dotnet pack -c Release --no-build -o output_packages
 
-      - name: Publish to Registries
+      - name: Publish to Registries via Ultimate OIDC Fallback Loop
         shell: pwsh
         run: |
           dotnet nuget add source --username "${{ github.actor }}" --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
@@ -44,12 +44,49 @@ jobs:
           $pkg = (Get-ChildItem -Path "output_packages/*.nupkg" -Recurse | Select-Object -First 1).FullName
 
           if (-not $pkg) {
-              Write-Error "Package not found!"
+              Write-Error "CRITICAL: Package not found anywhere!"
               exit 1
           }
 
           Write-Host "Pushing to GitHub Packages..."
-          dotnet nuget push "$pkg" --source github --skip-duplicate
+          $ghSuccess = $false
+          for ($i = 1; $i -le 3; $i++) {
+              try {
+                  dotnet nuget push "$pkg" --source github --skip-duplicate
+                  if ($LASTEXITCODE -eq 0) {
+                      $ghSuccess = $true
+                      break
+                  }
+              } catch {
+                  Write-Warning "Attempt $i failed for GitHub Packages, retrying..."
+              }
+              Start-Sleep -Seconds 5
+          }
 
-          Write-Host "Pushing to NuGet.org via Trusted Publishing (OIDC)..."
-          dotnet nuget push "$pkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          Write-Host "Pushing to NuGet.org via Trusted Publishing (OIDC) with multi-layer fallback..."
+          $env:NuGet_Acknowledge_No_API_Key = "true"
+          $nugetSuccess = $false
+
+          for ($i = 1; $i -le 5; $i++) {
+              Write-Host "NuGet.org OIDC Push Attempt $i of 5..."
+              try {
+                  dotnet nuget push "$pkg" --source https://api.nuget.org/v3/index.json --skip-duplicate
+                  if ($LASTEXITCODE -eq 0) {
+                      $nugetSuccess = $true
+                      Write-Host "Successfully pushed to NuGet.org!"
+                      break
+                  }
+              } catch {
+                  Write-Warning "Attempt $i caught an exception."
+              }
+
+              if ($i -lt 5) {
+                  Write-Host "Retrying in 10 seconds..."
+                  Start-Sleep -Seconds 10
+              }
+          }
+
+          if (-not $nugetSuccess) {
+              Write-Error "CRITICAL: Failed to push to NuGet.org after 5 exhaustive fallback layers!"
+              exit 1
+          }
