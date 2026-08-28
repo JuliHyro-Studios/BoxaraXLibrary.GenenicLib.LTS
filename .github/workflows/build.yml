@@ -49,8 +49,9 @@ jobs:
           $idTokenUrl = $env:ACTIONS_ID_TOKEN_REQUEST_URL
           $idTokenJwtToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
 
-          if (-not $idTokenUrl -not $idTokenJwtToken) {
-              # Fallback check
+          if (-not $idTokenUrl -or -not $idTokenJwtToken) {
+              Write-Error "CRITICAL: OIDC environment variables are missing."
+              exit 1
           }
 
           $authUri = "$idTokenUrl&audience=api.nuget.org"
