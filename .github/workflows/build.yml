@@ -36,10 +36,10 @@ jobs:
       - name: Pack NuGet Package
         run: dotnet pack -c Release --no-build -o output_packages
 
-      - name: Publish to Registries via Force v3 OIDC Endpoint
+      - name: Publish to Registries via Clean Force v3 OIDC
         shell: pwsh
         run: |
-          dotnet nuget add source --username "${{ github.actor }}" --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          dotnet nuget add source --username "${{ github.actor }}" --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" -ErrorAction SilentlyContinue
 
           $pkg = (Get-ChildItem -Path "output_packages/*.nupkg" -Recurse | Select-Object -First 1).FullName
 
@@ -51,8 +51,11 @@ jobs:
           Write-Host "Pushing to GitHub Packages..."
           dotnet nuget push "$pkg" --source github --skip-duplicate
 
-          Write-Host "Forcing NuGet.org v3 API with explicit source registration..."
-          dotnet nuget remove source nuget.org -ErrorAction SilentlyContinue
+          Write-Host "Configuring NuGet.org v3 source safely..."
+          # Clean up existing nuget.org sources quietly using pwsh try-catch instead of dotnet inline flags
+          try { dotnet nuget remove source nuget.org } catch {}
+          try { dotnet nuget remove source nuget.org-v3 } catch {}
+          
           dotnet nuget add source "https://api.nuget.org/v3/index.json" --name nuget.org-v3
 
           $env:NuGet_Acknowledge_No_API_Key = "true"
