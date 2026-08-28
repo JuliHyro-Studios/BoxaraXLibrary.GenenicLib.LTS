@@ -30,7 +30,10 @@ jobs:
 
       - name: Pack NuGet Package
         run: dotnet pack -c Release --no-build -o ./artifacts
-
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          dotnet nuget push ./artifacts/*.nupkg --source github
       # - name: Sign Binaries with SignPath
       #   uses: SignPath/github-action-submit-signing-request@v1
       #   with:
