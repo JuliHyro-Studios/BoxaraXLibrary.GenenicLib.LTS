@@ -22,19 +22,10 @@ We specialize in creating lightweight, cross-platform solutions for developers, 
 
 ---
 
-## 📄 License
-
-This project is licensed under the **Apache License 2.0**.
-
-[View full license](https://www.apache.org/licenses/LICENSE-2.0)
-
----
-
 ## 🔗 Links
 
-- **GitHub:** https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS
-- **NuGet:** https://www.nuget.org/packages/BoxaraXLibrary.GenenicLib.LTS
-- **Releases:** https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/releases
+- **GitHub:** https://github.com/JuliHyro-Studios
+- **NuGet:** https://www.nuget.org/profiles/julihyro
 
 ---
 
