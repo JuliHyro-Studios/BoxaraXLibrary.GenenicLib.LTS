@@ -33,5 +33,5 @@ We specialize in creating lightweight, cross-platform solutions for developers, 
 
 For questions, suggestions, or collaborations:
 
-- **Email:** julihyro@example.com
+- **Email:** hycoremc907@gmail.com
 - **GitHub Issues:** https://github.com/JuliHyro-Studios
