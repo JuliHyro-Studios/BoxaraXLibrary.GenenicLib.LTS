@@ -1,4 +1,4 @@
-# 📦 BoxaraXLibrary.GenenicLib.LTS
+# 🏢 JuliHyro Studios Workspace
 
 ## Author
 
