@@ -36,51 +36,72 @@ jobs:
       - name: Pack NuGet Package
         run: dotnet pack -c Release --no-build -o output_packages
 
-      - name: Force NuGet.config v3 Binding and Push
+      - name: Push to NuGet.org via Direct OIDC REST API
         shell: pwsh
         run: |
-          # Tạo file NuGet.config ép buộc tuyệt đối chỉ xài v3, cấm tiệt v2
-          $nugetConfig = @"
-          <?xml version="1.0" encoding="utf-8"?>
-          <configuration>
-            <packageSources>
-              <clear />
-              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-              <add key="github" value="https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" />
-            </packageSources>
-            <packageSourceMapping>
-              <packageSource key="nuget.org">
-                <package pattern="*" />
-              </packageSource>
-              <packageSource key="github">
-                <package pattern="BoxaraXLibrary.*" />
-              </packageSource>
-            </packageSourceMapping>
-          </configuration>
-          "@
-          
-          Set-Content -Path "NuGet.config" -Value $nugetConfig
-          Write-Host "Created strict v3 NuGet.config successfully."
-
           $pkg = (Get-ChildItem -Path "output_packages/*.nupkg" -Recurse | Select-Object -First 1).FullName
-
           if (-not $pkg) {
               Write-Error "Package not found!"
               exit 1
           }
 
-          Write-Host "Pushing to GitHub Packages..."
-          dotnet nuget push "$pkg" --source github --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
+          Write-Host "Requesting GitHub OIDC Token..."
+          $idTokenUrl = $env:ACTIONS_ID_TOKEN_REQUEST_URL
+          $idTokenJwtToken = $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN
 
-          Write-Host "Pushing to NuGet.org via strict v3 OIDC..."
-          $env:NuGet_Acknowledge_No_API_Key = "true"
+          if (-not $idTokenUrl -or -not $idTokenJwtToken) {
+              Write-Error "CRITICAL: OIDC environment variables are missing. Check permissions (id-token: write)."
+              exit 1
+          }
+
+          $authUri = "$idTokenUrl&audience=api.nuget.org"
+          $headers = @{ "Authorization" = "bearer $idTokenJwtToken" }
           
-          for ($i = 1; $i -le 5; $i++) {
-              Write-Host "Strict v3 Push Attempt $i..."
-              dotnet nuget push "$pkg" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
-              if ($LASTEXITCODE -eq 0) {
-                  Write-Host "Successfully published to NuGet.org via v3 OIDC!"
+          try {
+              $response = Invoke-RestMethod -Uri $authUri -Method Get -Headers $headers
+              $oidcToken = $response.value
+              Write-Host "Successfully obtained OIDC token from GitHub!"
+          } catch {
+              Write-Error "Failed to obtain OIDC token: $_"
+              exit 1
+          }
+
+          Write-Host "Pushing package to NuGet.org via Direct v3 REST API..."
+          # NuGet.org OIDC package push endpoint via v3 API
+          $nuGetPushUri = "https://api.nuget.org/v3/package"
+          
+          $boundary = [System.Guid]::NewGuid().ToString()
+          $fileBytes = [System.IO.File]::ReadAllBytes($pkg)
+          $fileName = [System.IO.Path]::GetFileName($pkg)
+
+          $bodyLines = (
+              "--$boundary",
+              "Content-Disposition: form-data; name=`"package`"; filename=`"$fileName`"",
+              "Content-Type: application/octet-stream",
+              "",
+              ""
+          ) -join "`r`n"
+
+          $bodyFooter = "`r`n--$boundary--`r`n"
+          $encoding = [System.Text.Encoding]::UTF8
+          $bodyBytes = $encoding.GetBytes($bodyLines) + $fileBytes + $encoding.GetBytes($bodyFooter)
+
+          $apiHeaders = @{
+              "X-NuGet-ApiKey" = $oidcToken
+              "Content-Type"   = "multipart/form-data; boundary=$boundary"
+          }
+
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+              try {
+                  Write-Host "REST API Push Attempt $attempt..."
+                  $webResponse = Invoke-WebRequest -Uri $nuGetPushUri -Method Put -Headers $apiHeaders -Body $bodyBytes -UseBasicParsing
+                  Write-Host "Successfully published to NuGet.org via Direct OIDC REST API!"
                   break
+              } catch {
+                  Write-Warning "Attempt $attempt failed: $_"
+                  if ($attempt -eq 3) {
+                      exit 1
+                  }
+                  Start-Sleep -Seconds 5
               }
-              Start-Sleep -Seconds 5
           }
