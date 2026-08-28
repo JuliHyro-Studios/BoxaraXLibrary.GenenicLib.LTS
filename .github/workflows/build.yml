@@ -36,66 +36,51 @@ jobs:
       - name: Pack NuGet Package
         run: dotnet pack -c Release --no-build -o output_packages
 
-      - name: Publish to Registries via 10-Layer Ultimate OIDC Fallback
+      - name: Force NuGet.config v3 Binding and Push
         shell: pwsh
         run: |
-          try {
-              dotnet nuget add source --username "${{ github.actor }}" --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-          } catch {
-              Write-Host "GitHub source handled."
-          }
+          # Tạo file NuGet.config ép buộc tuyệt đối chỉ xài v3, cấm tiệt v2
+          $nugetConfig = @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+              <add key="github" value="https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" />
+            </packageSources>
+            <packageSourceMapping>
+              <packageSource key="nuget.org">
+                <package pattern="*" />
+              </packageSource>
+              <packageSource key="github">
+                <package pattern="BoxaraXLibrary.*" />
+              </packageSource>
+            </packageSourceMapping>
+          </configuration>
+          "@
+          
+          Set-Content -Path "NuGet.config" -Value $nugetConfig
+          Write-Host "Created strict v3 NuGet.config successfully."
 
           $pkg = (Get-ChildItem -Path "output_packages/*.nupkg" -Recurse | Select-Object -First 1).FullName
 
           if (-not $pkg) {
-              Write-Error "CRITICAL: Package not found!"
+              Write-Error "Package not found!"
               exit 1
           }
 
           Write-Host "Pushing to GitHub Packages..."
-          for ($ghTry = 1; $ghTry -le 3; $ghTry++) {
-              dotnet nuget push "$pkg" --source github --skip-duplicate
-              if ($LASTEXITCODE -eq 0) { break }
-              Start-Sleep -Seconds 3
-          }
+          dotnet nuget push "$pkg" --source github --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
 
-          Write-Host "Configuring NuGet.org v3 source with 10-layer ultimate force..."
-          try { dotnet nuget remove source nuget.org } catch {}
-          try { dotnet nuget remove source nuget.org-v3 } catch {}
-          try { dotnet nuget remove source nuget-v3-forced } catch {}
-
-          dotnet nuget add source "https://api.nuget.org/v3/index.json" --name nuget-v3-forced --protocol-version 3
-
+          Write-Host "Pushing to NuGet.org via strict v3 OIDC..."
           $env:NuGet_Acknowledge_No_API_Key = "true"
-          $env:DOTNET_ADD_SOURCE_TIMEOUT = "60"
-
-          $success = $false
-          for ($layer = 1; $layer -le 10; $layer++) {
-              Write-Host "=== NUGET.ORG OIDC FALLBACK LAYER $layer OF 10 ==="
-              
-              # Strategy variation per layer to defeat any v2 fallback caching
-              if ($layer -le 3) {
-                  Write-Host "Executing push via named source [nuget-v3-forced]..."
-                  dotnet nuget push "$pkg" --source "nuget-v3-forced" --skip-duplicate
-              } elseif ($layer -le 6) {
-                  Write-Host "Executing push via direct v3 endpoint URL..."
-                  dotnet nuget push "$pkg" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
-              } else {
-                  Write-Host "Executing push via direct endpoint with interactive bypass..."
-                  dotnet nuget push "$pkg" --source "https://api.nuget.org/v3/index.json" --skip-duplicate --interactive:$false
-              }
-
+          
+          for ($i = 1; $i -le 5; $i++) {
+              Write-Host "Strict v3 Push Attempt $i..."
+              dotnet nuget push "$pkg" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
               if ($LASTEXITCODE -eq 0) {
-                  Write-Host "SUCCESS: Successfully published to NuGet.org on layer $layer!"
-                  $success = $true
+                  Write-Host "Successfully published to NuGet.org via v3 OIDC!"
                   break
-              } else {
-                  Write-Warning "Layer $layer failed with exit code $LASTEXITCODE. Retrying..."
-                  Start-Sleep -Seconds (5 * $layer)
               }
-          }
-
-          if (-not $success) {
-              Write-Error "CRITICAL: All 10 fallback layers exhausted. Push failed."
-              exit 1
+              Start-Sleep -Seconds 5
           }
