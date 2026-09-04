@@ -9,7 +9,6 @@
 > **Generic Library LTS** — Core framework for building shell-based CLI applications with command handling, rich console UI, and fluent API. Designed for **Lazy DevOps & Engineers**.
 **Generic Library LTS** — Core framework for building shell-based CLI applications with command handling, rich console UI, and fluent API.
 ---
-
 ## 📖 Overview
 
 **BoxaraXLibrary.GenenicLib.LTS** is a lightweight, high-performance framework designed for building **shell-based CLI applications** in .NET. It provides a complete infrastructure for command registration, shell lifecycle management, and interactive console experiences.
