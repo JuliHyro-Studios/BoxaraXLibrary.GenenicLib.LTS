@@ -29,6 +29,8 @@
 - ⚡ **Lightweight** — Zero external dependencies, minimal footprint
 - 🧩 **Extensible** — Easy to extend with custom commands, shells, and authenticators
 
+> 📚 **This README covers basics & quick start only.** For **comprehensive documentation** including architecture, advanced patterns, error handling, authentication, extensibility, and examples, see [**devopsdoc.md**](devopsdoc.md).
+
 ### 📦 Use Cases
 
 - **CLI Tools** — Build powerful command-line utilities
