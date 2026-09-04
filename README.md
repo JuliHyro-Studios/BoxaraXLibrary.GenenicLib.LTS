@@ -15,6 +15,29 @@
 
 **BoxaraXLibrary.GenenicLib.LTS** is a lightweight, high-performance framework designed for building **shell-based CLI applications** in .NET. It provides a complete infrastructure for command registration, shell lifecycle management, and interactive console experiences.
 
+---
+
+## ⚠️ 📚 **IMPORTANT — READ FULL DOCUMENTATION**
+
+> ### **This README shows BASICS ONLY!**
+> 
+> ✅ **README.md** = Quick Start + Simple Examples  
+> 📖 **[devopsdoc.md](devopsdoc.md)** = **COMPLETE DOCUMENTATION** (2200+ lines)
+> 
+> **devopsdoc.md includes:**
+> - 🎯 Advanced patterns & best practices
+> - 🛡️ Error handling & validation
+> - 🔐 Authentication system (detailed)
+> - 🧩 Extensibility & customization
+> - 📊 Performance optimization
+> - 🔄 Threading & thread safety
+> - 📝 Real-world examples
+> - ❓ FAQ & troubleshooting
+> 
+> **→ [👉 Read devopsdoc.md NOW →](devopsdoc.md)**
+
+---
+
 ### ✨ Key Features
 
 - ⚙️ **Shell Engine** — Build and run interactive shells with customizable prompts and headers
@@ -28,8 +51,6 @@
 - 📦 **Cross-Platform** — Works on Windows, Linux, and macOS via .NET
 - ⚡ **Lightweight** — Zero external dependencies, minimal footprint
 - 🧩 **Extensible** — Easy to extend with custom commands, shells, and authenticators
-
-> 📚 **This README covers basics & quick start only.** For **comprehensive documentation** including architecture, advanced patterns, error handling, authentication, extensibility, and examples, see [**devopsdoc.md**](devopsdoc.md).
 
 ### 📦 Use Cases
 
