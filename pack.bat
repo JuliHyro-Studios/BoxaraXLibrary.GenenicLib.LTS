@@ -10,13 +10,15 @@ set CSPROJ_FILE=%PACKAGE_NAME%.csproj
 set NUGET_API_URL=https://api.nuget.org/v3/index.json
 set NUGET_PACKAGE_URL=https://www.nuget.org/packages/%PACKAGE_NAME%
 set OUTPUT_DIR=nupkgs
-:: ============================================================
 
+set SCRIPT_DIR=%~dp0
+
+:: ============================================================
 :: ===== STEP 1: BUILD NUGET FLATCONTAINER URL FROM PACKAGE NAME =====
 set NUGET_FLATCONTAINER_URL=https://api.nuget.org/v3-flatcontainer/%PACKAGE_NAME:BoxaraXLibrary.GenenicLib.LTS=boxaraxlibrary.geneniclib.lts%/index.json
 
 echo ============================================================
-echo   Packing %PACKAGE_NAME%
+echo   Packing %PACKAGE_NAME% [Public Open-Source Edition]
 echo ============================================================
 echo.
 
@@ -36,7 +38,7 @@ echo.
 
 :: ===== STEP 1.5: READ TARGET FRAMEWORKS FROM CSPROJ =====
 echo [STEP 1.5] Reading target frameworks from .csproj...
-for /f "delims=" %%i in ('powershell -Command "& { $xml=[xml](Get-Content %CSPROJ_FILE%); $tfms=$xml.Project.PropertyGroup.TargetFrameworks; if ($tfms -eq $null) { $tfms=$xml.Project.PropertyGroup.TargetFramework }; Write-Output $tfms }"') do set TARGET_FRAMEWORKS=%%i
+for /f "delims=" %%i in ('powershell -Command "& { $xml=[xml](Get-Content '%SCRIPT_DIR%%CSPROJ_FILE%'); $tfms=$xml.Project.PropertyGroup.TargetFrameworks; if ($tfms -eq $null) { $tfms=$xml.Project.PropertyGroup.TargetFramework }; Write-Output $tfms }"') do set TARGET_FRAMEWORKS=%%i
 
 if "%TARGET_FRAMEWORKS%"=="" (
     echo [WARN] Cannot find TargetFrameworks in .csproj. Using fallback: net8.0
@@ -47,7 +49,7 @@ echo.
 
 :: ===== STEP 2: READ LOCAL VERSION FROM CSPROJ =====
 echo [STEP 2] Reading local version from .csproj...
-for /f "delims=" %%i in ('powershell -Command "& { $xml=[xml](Get-Content %CSPROJ_FILE%); $version=$xml.Project.PropertyGroup.Version; if ($version -eq $null) { $version='1.0.0' }; Write-Output $version }"') do set LOCAL_VERSION=%%i
+for /f "delims=" %%i in ('powershell -Command "& { $xml=[xml](Get-Content '%SCRIPT_DIR%%CSPROJ_FILE%'); $version=$xml.Project.PropertyGroup.Version; if ($version -eq $null) { $version='1.0.0' }; Write-Output $version }"') do set LOCAL_VERSION=%%i
 
 if "%LOCAL_VERSION%"=="" (
     echo [WARN] Cannot find Version in .csproj. Using fallback 1.0.0
@@ -94,7 +96,7 @@ echo.
 
 :: ===== STEP 4: CHECK LOCAL PACKAGE =====
 echo [STEP 4] Checking local package...
-set NUPKG_PATH=.\%OUTPUT_DIR%\%PACKAGE_NAME%.%LOCAL_VERSION%.nupkg
+set NUPKG_PATH=%SCRIPT_DIR%%OUTPUT_DIR%\%PACKAGE_NAME%.%LOCAL_VERSION%.nupkg
 if exist "%NUPKG_PATH%" (
     echo [WARN] Package %LOCAL_VERSION% already exists in %OUTPUT_DIR% folder!
     echo [WARN] It will be overwritten during pack.
@@ -103,9 +105,9 @@ echo.
 
 :: ===== STEP 5: CLEAN OLD OUTPUT FOLDER =====
 echo [STEP 5] Cleaning old %OUTPUT_DIR% folder...
-if exist .\%OUTPUT_DIR% (
+if exist "%SCRIPT_DIR%%OUTPUT_DIR%" (
     echo [INFO] Removing old %OUTPUT_DIR% folder...
-    rmdir /s /q .\%OUTPUT_DIR%
+    rmdir /s /q "%SCRIPT_DIR%%OUTPUT_DIR%"
 ) else (
     echo [INFO] No old %OUTPUT_DIR% folder found.
 )
@@ -115,7 +117,8 @@ echo.
 echo [STEP 6] Building Release...
 echo [INFO] Target frameworks: %TARGET_FRAMEWORKS%
 echo [INFO] This may take a few seconds...
-dotnet build -c Release --no-restore
+dotnet build "%SCRIPT_DIR%%CSPROJ_FILE%" -c Release --no-restore
+
 if %errorlevel% neq 0 (
     echo [ERROR] Build failed with error code %errorlevel%.
     echo [ERROR] Please check the error messages above.
@@ -128,7 +131,8 @@ echo.
 :: ===== STEP 7: PACK =====
 echo [STEP 7] Packing...
 echo [INFO] Creating package: %PACKAGE_NAME%.%LOCAL_VERSION%.nupkg
-dotnet pack -c Release -o ./%OUTPUT_DIR%
+dotnet pack "%SCRIPT_DIR%%CSPROJ_FILE%" -c Release -o "%SCRIPT_DIR%%OUTPUT_DIR%"
+
 if %errorlevel% neq 0 (
     echo [ERROR] Pack failed with error code %errorlevel%.
     echo [ERROR] Please check the error messages above.
@@ -138,19 +142,24 @@ if %errorlevel% neq 0 (
 echo [INFO] Pack completed successfully.
 echo.
 
+:: ===== STEP 7.5: CHECK LOCAL CERTIFICATE IN PROJECT ROOT =====
+echo [STEP 7.5] Verifying Project Certificate Asset...
+powershell -Command "& { $certName = 'nugcer.cer'; $certPath = Join-Path '%SCRIPT_DIR%' $certName; if (Test-Path $certPath) { Write-Host '[INFO] Found project certificate asset: ' -NoNewline; Write-Host $certPath -ForegroundColor Green } else { Write-Host '[WARN] Certificate asset not found in project root directory!' -ForegroundColor Yellow } }"
+echo.
+
 :: ===== STEP 8: DISPLAY RESULTS =====
 echo ============================================================
 echo   PACK SUCCESSFUL
 echo ============================================================
 echo.
 echo [INFO] Package: %PACKAGE_NAME%.%LOCAL_VERSION%.nupkg
-echo [INFO] Location: .\%OUTPUT_DIR%\
+echo [INFO] Location: %SCRIPT_DIR%%OUTPUT_DIR%\
 echo.
 echo [INFO] Next steps:
 echo   1. Test the package locally:
 echo      dotnet add package %PACKAGE_NAME% --version %LOCAL_VERSION%
 echo.
 echo   2. Push to NuGet:
-echo      dotnet nuget push .\%OUTPUT_DIR%\%PACKAGE_NAME%.%LOCAL_VERSION%.nupkg -k YOUR_API_KEY -s %NUGET_API_URL%
+echo      dotnet nuget push "%SCRIPT_DIR%%OUTPUT_DIR%\%PACKAGE_NAME%.%LOCAL_VERSION%.nupkg" -k YOUR_API_KEY -s %NUGET_API_URL%
 echo.
 pause
