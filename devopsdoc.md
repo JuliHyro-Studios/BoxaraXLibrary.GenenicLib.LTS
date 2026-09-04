@@ -1574,6 +1574,33 @@ public void ParameterExecute(string[] args)
 - Use `ExternalCommandManager` to avoid loading all plugins upfront
 - Implement proper cleanup for `AssemblyLoadContext` instances
 
+### 6. ShelliftAPIBuild Configuration
+
+**Important:** `ShelliftAPIBuild.Build()` now validates all required configuration before launching the shell. Ensure:
+
+- ✅ Call `SelectCommandShellLoad(shellName)` with a valid registered shell
+- ✅ Call either `SelectShellHeaderTemplate()` OR `SelectCustomHeader()` (not both, not neither)
+- ✅ Call either `SelectShellPrompt()` OR `SelectCustomPrompt()` (not both, not neither)
+- ✅ No conflicting configuration flags
+
+**Example** (❌ WRONG - will throw InvalidOperationException):
+```csharp
+ShelliftAPIBuild.Create()
+    // Missing SelectCommandShellLoad() - shell name defaults to "MainShell"
+    // Missing header selection - validation will fail
+    // Missing prompt selection - validation will fail
+    .Build();  // InvalidOperationException thrown
+```
+
+**Example** (✅ CORRECT):
+```csharp
+ShelliftAPIBuild.Create()
+    .SelectCommandShellLoad("MyShell")
+    .SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+    .SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
+    .Build();  // Success - all validation passed
+```
+
 ---
 
 ## FAQ

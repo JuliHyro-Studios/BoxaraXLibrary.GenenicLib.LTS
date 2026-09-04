@@ -299,11 +299,51 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _appVersion = appVersion ?? "1.0.0";
             return this;
         }
+        private void ValidateConfiguration()
+        {
+            if (string.IsNullOrWhiteSpace(_shellName))
+            {
+                throw new InvalidOperationException(
+                    $"[VALIDATION ERROR] Shell name is required. Call SelectCommandShellLoad(shellName) before Build()."
+                );
+            }
+
+            if (_isCustomHeaderSet && _customHeaderRenderer == null)
+            {
+                throw new InvalidOperationException(
+                    "[VALIDATION ERROR] Custom header was configured but no renderer provided. " +
+                    "Use SelectCustomHeader(renderAction) correctly."
+                );
+            }
+
+            if (_isCustomPromptSet && _customPromptGenerator == null)
+            {
+                throw new InvalidOperationException(
+                    "[VALIDATION ERROR] Custom prompt was configured but no generator provided. " +
+                    "Use SelectCustomPrompt(generatorFunc) correctly."
+                );
+            }
+        }
+
+        private void ValidateCommandsLoaded(List<ICommand> commands)
+        {
+            if (commands == null)
+            {
+                throw new InvalidOperationException(
+                    $"[SHELL ERROR] Failed to load commands for shell '{_shellName}'. " +
+                    $"ReflectionCommandShellTemplate.LoadCommandsForShell() returned null. " +
+                    $"Ensure the shell is registered in ShellRegistry."
+                );
+            }
+
+        }
 
         public int Build()
         {
             try
             {
+                ValidateConfiguration();
+
                 _onShellStart?.Invoke();
 
                 LogConsole.Clear(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -320,6 +360,9 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 }
 
                 _commands = ReflectionCommandShellTemplate.LoadCommandsForShell(_shellName);
+
+                // Validate commands were loaded
+                ValidateCommandsLoaded(_commands);
 
                 _onCommandsLoaded?.Invoke(_commands);
 
