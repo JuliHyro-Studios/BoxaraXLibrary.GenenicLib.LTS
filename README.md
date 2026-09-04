@@ -22,7 +22,7 @@
 > ### **This README shows BASICS ONLY!**
 > 
 > ✅ **README.md** = Quick Start + Simple Examples  
-> 📖 **[devopsdoc.md](devopsdoc.md)** = **COMPLETE DOCUMENTATION** (2200+ lines)
+> 📖 **[devopsdoc.md](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/blob/master/devopsdoc.md)** = **COMPLETE DOCUMENTATION** (2200+ lines)
 > 
 > **devopsdoc.md includes:**
 > - 🎯 Advanced patterns & best practices
@@ -34,7 +34,7 @@
 > - 📝 Real-world examples
 > - ❓ FAQ & troubleshooting
 > 
-> **→ [👉 Read devopsdoc.md NOW →](devopsdoc.md)**
+> **→ [👉 Read devopsdoc.md NOW →](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/blob/master/devopsdoc.md)**
 
 ---
 
