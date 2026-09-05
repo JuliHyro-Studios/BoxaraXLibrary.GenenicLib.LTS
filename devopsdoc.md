@@ -1634,6 +1634,7 @@ ShelliftAPIBuild.Create()
 ### v1.0.7.1 — Internal Refactoring & Documentation Cleanup
 - **Encapsulation**: Changed `ErrorShellTemplate` to `internal` to prevent direct calls from Dev-Apps, enforcing the use of exception-based error handling.
 - **Documentation**: Updated `devopsdoc.md` to reflect internal components and correct the error handling flow (Throw Exception $\rightarrow$ Framework Catch).
+- **Cleanup**: Removed misleading 'help' command references from error messages as the framework does not provide a built-in help command.
 - **Accuracy**: Corrected `devopsdoc.md` length description in `README.md`.
 - **Standardization**: Aligned error handling examples with the latest framework architecture.
 

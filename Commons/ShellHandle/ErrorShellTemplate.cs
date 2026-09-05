@@ -63,10 +63,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         {
             string time = GetCurrentTime();
             LogConsole.ForegroundColor = ConsoleColor.Red;
-            LogConsole.WriteLine(
-                $"[X] Command '{input}' not found. Type 'help' to see available commands.",
-                time
-            );
+            LogConsole.WriteLine($"[X] Command '{input}' not found.", time);
             LogConsole.ResetColor();
         }
 
@@ -78,7 +75,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 $"[X] Invalid parameter(s) for command '{commandName}'. [Command Module Response: {details}]".TrimEnd(),
                 time
             );
-            LogConsole.WriteLine($"[i] Type 'help' or check command usage for more details.", time);
             LogConsole.ResetColor();
         }
     }
