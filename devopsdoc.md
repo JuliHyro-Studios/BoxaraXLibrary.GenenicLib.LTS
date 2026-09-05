@@ -11,7 +11,6 @@
 
 | Property | Value |
 |----------|-------|
-| **Version** | 1.0.6-LTS |
 | **Author** | JuliHyro Studios Workspace |
 | **License** | Apache 2.0 |
 | **Target Frameworks** | .NET 7.0, 8.0, 9.0, 10.0 |
