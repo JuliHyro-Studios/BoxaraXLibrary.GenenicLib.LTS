@@ -9,22 +9,33 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 {
     public static class ReflectionShellTemplate
     {
-                private static string GetCurrentTime() => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        private static string GetCurrentTime() => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
         private static string _currentShellName = "MainShell";
         private static readonly object _shellLock = new object();
+
         public static List<IShell> LoadAllShells()
         {
             var shellList = new List<IShell>();
 
             try
             {
-                var shellTypes = AppDomain.CurrentDomain.GetAssemblies()
+                var shellTypes = AppDomain
+                    .CurrentDomain.GetAssemblies()
                     .SelectMany(s =>
                     {
-                        try { return s.GetTypes(); }
-                        catch { return Type.EmptyTypes; }
+                        try
+                        {
+                            return s.GetTypes();
+                        }
+                        catch
+                        {
+                            return Type.EmptyTypes;
+                        }
                     })
-                    .Where(t => typeof(IShell).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                    .Where(t =>
+                        typeof(IShell).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
+                    );
 
                 foreach (var type in shellTypes)
                 {
@@ -36,7 +47,10 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             }
             catch (Exception ex)
             {
-                LogConsole.WriteLine($"[X] Error loading shells from template: {ex.Message}", GetCurrentTime());
+                LogConsole.WriteLine(
+                    $"[X] Error loading shells from template: {ex.Message}",
+                    GetCurrentTime()
+                );
             }
 
             return shellList;
@@ -48,7 +62,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             {
                 var allShells = LoadAllShells();
                 return allShells.FirstOrDefault(s =>
-                    string.Equals(s.ShellName, shellName, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(s.ShellName, shellName, StringComparison.OrdinalIgnoreCase)
+                );
             }
             catch
             {
@@ -63,13 +78,18 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             try
             {
                 var allShells = LoadAllShells();
-                result = allShells.Where(s =>
-                    string.Equals(s.Category, category, StringComparison.OrdinalIgnoreCase))
+                result = allShells
+                    .Where(s =>
+                        string.Equals(s.Category, category, StringComparison.OrdinalIgnoreCase)
+                    )
                     .ToList();
             }
             catch (Exception ex)
             {
-                LogConsole.WriteLine($"[X] Error loading shells by category: {ex.Message}", GetCurrentTime());
+                LogConsole.WriteLine(
+                    $"[X] Error loading shells by category: {ex.Message}",
+                    GetCurrentTime()
+                );
             }
 
             return result;
