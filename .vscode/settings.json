@@ -3,6 +3,38 @@
         "editor.defaultFormatter": "csharpier.csharpier-vscode",
         "editor.formatOnType": true,
         "editor.formatOnPaste": true,
-        "editor.formatOnSave": true
-    }
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.suggest.showMethods": true,
+        "editor.suggest.showFunctions": true,
+        "editor.suggest.showVariables": true,
+        "editor.suggest.showClasses": true,
+        "editor.suggest.showInterfaces": true,
+        "editor.suggest.showModules": true,
+        "editor.suggest.showProperties": true,
+        "editor.suggest.showFields": true,
+        "editor.suggest.showConstants": true,
+        "editor.suggest.showEnums": true,
+        "editor.suggest.showStructs": true,
+        "editor.suggest.showEvents": true,
+        "editor.suggest.showOperators": true,
+        "editor.suggest.showKeywords": true,
+        "editor.suggest.showSnippets": true
+    },
+
+    "editor.minimap.enabled": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.guides.indentation": true,
+    "editor.renderWhitespace": "selection",
+
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+
+    "explorer.compactFolders": false,
+
+    "dotnet.defaultSolution": "BoxaraXLibrary.GenenicLib.LTS.sln"
 }
