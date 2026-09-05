@@ -59,6 +59,9 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                                 if (keyInfo.Key == ConsoleKey.Enter)
                                 {
                                     Console.WriteLine();
+
+                                    LogManager.ClearActiveContext();
+
                                     hasInput = true;
                                 }
                                 else if (keyInfo.Key == ConsoleKey.Backspace)
