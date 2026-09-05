@@ -33,10 +33,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             }
 
             LogConsole.ForegroundColor = ConsoleColor.Red;
-            LogConsole.WriteLine(
-                $"[X] Command '{input}' not found. Type 'help' to see available commands.",
-                time
-            );
+            LogConsole.WriteLine($"[X] Command '{input}' not found.", time);
             LogConsole.ResetColor();
         }
 
