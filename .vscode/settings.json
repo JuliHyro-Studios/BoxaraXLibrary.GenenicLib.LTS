@@ -36,5 +36,6 @@
 
     "explorer.compactFolders": false,
 
-    "dotnet.defaultSolution": "BoxaraXLibrary.GenenicLib.LTS.sln"
+    "dotnet.defaultSolution": "BoxaraXLibrary.GenenicLib.LTS.sln",
+    "chat.byokUtilityModelDefault": "mainAgent"
 }

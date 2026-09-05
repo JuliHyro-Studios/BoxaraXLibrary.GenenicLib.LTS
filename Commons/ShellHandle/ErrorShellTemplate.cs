@@ -6,11 +6,11 @@ using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
 
 namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 {
-    public static class ErrorShellTemplate
+    internal static class ErrorShellTemplate
     {
         private static string GetCurrentTime() => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                public static void ShowCommandNotFound(string input, List<ICommand> allCommands)
+        public static void ShowCommandNotFound(string input, List<ICommand> allCommands)
         {
             string time = GetCurrentTime();
 
@@ -22,22 +22,29 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 return;
             }
 
-                        var matches = allCommands
+            var matches = allCommands
                 .Where(c => c.Name.StartsWith(input, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             if (matches.Count > 0)
             {
-                                ShowPrefixMatches(input, matches, allCommands);
+                ShowPrefixMatches(input, matches, allCommands);
                 return;
             }
 
             LogConsole.ForegroundColor = ConsoleColor.Red;
-            LogConsole.WriteLine($"[X] Command '{input}' not found. Type 'help' to see available commands.", time);
+            LogConsole.WriteLine(
+                $"[X] Command '{input}' not found. Type 'help' to see available commands.",
+                time
+            );
             LogConsole.ResetColor();
         }
 
-                public static void ShowPrefixMatches(string input, List<ICommand> prefixMatches, List<ICommand> allCommands)
+        public static void ShowPrefixMatches(
+            string input,
+            List<ICommand> prefixMatches,
+            List<ICommand> allCommands
+        )
         {
             string time = GetCurrentTime();
             LogConsole.ForegroundColor = ConsoleColor.Yellow;
@@ -48,15 +55,18 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 LogConsole.WriteLine($"  - {match.Name} ({match.Description})", time);
             }
 
-                        LogConsole.WriteLine($"[i] Total available commands: {allCommands.Count}", time);
+            LogConsole.WriteLine($"[i] Total available commands: {allCommands.Count}", time);
             LogConsole.ResetColor();
         }
 
-                public static void ShowCommandNotFound(string input)
+        public static void ShowCommandNotFound(string input)
         {
             string time = GetCurrentTime();
             LogConsole.ForegroundColor = ConsoleColor.Red;
-            LogConsole.WriteLine($"[X] Command '{input}' not found. Type 'help' to see available commands.", time);
+            LogConsole.WriteLine(
+                $"[X] Command '{input}' not found. Type 'help' to see available commands.",
+                time
+            );
             LogConsole.ResetColor();
         }
 
@@ -64,7 +74,10 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         {
             string time = GetCurrentTime();
             LogConsole.ForegroundColor = ConsoleColor.Red;
-            LogConsole.WriteLine($"[X] Invalid parameter(s) for command '{commandName}'. [Command Module Response: {details}]".TrimEnd(), time);
+            LogConsole.WriteLine(
+                $"[X] Invalid parameter(s) for command '{commandName}'. [Command Module Response: {details}]".TrimEnd(),
+                time
+            );
             LogConsole.WriteLine($"[i] Type 'help' or check command usage for more details.", time);
             LogConsole.ResetColor();
         }

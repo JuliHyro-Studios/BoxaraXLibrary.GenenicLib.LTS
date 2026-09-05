@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BoxaraXLibrary.GenenicLib.LTS
-{ 
+{
     internal class codeint
     {
         public const int SUCESS = 0;

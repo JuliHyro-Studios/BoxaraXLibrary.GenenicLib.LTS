@@ -193,7 +193,13 @@ public void Command_ShouldExecuteSuccessfully()
 
 ## 📚 API Reference (Quick Summary)
 
+### ⚠️ Internal Components (Framework Only)
+The following components are marked as `internal` and are managed automatically by the framework. They are **not accessible** to Dev-Apps:
+- `ErrorShellTemplate` — Handles the internal rendering of standardized error messages.
+- `codeint` — Defines core system return codes used for internal logic.
+
 ### Core Interfaces
+...existing code...
 
 - `ICommand` — Command contract
 - `IShell` — Shell contract
@@ -343,8 +349,7 @@ public class MyCommand : ICommand
 	{
 		if (args.Length < 2)
 		{
-			ErrorShellTemplate.ShowCommandInvalidParameter(Name, "Expected 2 arguments");
-			return;
+			throw new ArgumentException("Expected 2 arguments");
 		}
 		Console.WriteLine($"Executed with args: {string.Join(", ", args)}");
 	}
@@ -618,24 +623,7 @@ public static class ErrorShellTemplate
 - **Prefix Matching Display** - Shows available commands that start with the user's input
 - **Invalid Parameter Display** - Displays detailed error messages for incorrect parameters
 
-**Usage Example:**
-
-```csharp
-var allCommands = ReflectionCommandShellTemplate.GetCommandAllInterface();
-
-// Show "command not found" with prefix-based suggestions
-ErrorShellTemplate.ShowCommandNotFound("hel", allCommands);
-// Output (if "hello" command exists):
-// [!] 'hel' is not a complete command. Did you mean:
-//   - hello (Prints a greeting)
-//   [i] Total available commands: 5
-
-// Show invalid parameter error
-ErrorShellTemplate.ShowCommandInvalidParameter("mycommand", "Expected format: mycommand <arg1> <arg2>");
-// Output:
-// [X] Invalid parameter(s) for command 'mycommand'. [Command Module Response: Expected format: mycommand <arg1> <arg2>]
-// [i] Type 'help' or check command usage for more details.
-```
+**Note:** `ErrorShellTemplate` is primarily used internally by `CommandProcessorTemplate`. Developers should focus on throwing appropriate exceptions within their commands to trigger these error displays.
 
 **Internal Implementation:**
 
@@ -1536,23 +1524,17 @@ public class ConfigCommand : ICommand
 
 ### 2. Error Handling
 
+The framework's `CommandProcessorTemplate` automatically catches exceptions thrown within commands and renders them via `ErrorShellTemplate`. Dev-Apps should throw exceptions instead of calling error templates directly.
+
 ```csharp
 public void ParameterExecute(string[] args)
 {
 	if (args == null || args.Length == 0)
 	{
-		ErrorShellTemplate.ShowCommandInvalidParameter(Name, "No arguments provided");
-		return;
+		throw new ArgumentException("No arguments provided");
 	}
 
-	try
-	{
-		// Command logic
-	}
-	catch (Exception ex)
-	{
-		ErrorShellTemplate.ShowCommandInvalidParameter(Name, ex.Message);
-	}
+	// Command logic - if any exception occurs here, the framework will catch and display it automatically
 }
 ```
 
@@ -1648,6 +1630,12 @@ ShelliftAPIBuild.Create()
 ---
 
 ## Changelog
+
+### v1.0.7.1 — Internal Refactoring & Documentation Cleanup
+- **Encapsulation**: Changed `ErrorShellTemplate` to `internal` to prevent direct calls from Dev-Apps, enforcing the use of exception-based error handling.
+- **Documentation**: Updated `devopsdoc.md` to reflect internal components and correct the error handling flow (Throw Exception $\rightarrow$ Framework Catch).
+- **Accuracy**: Corrected `devopsdoc.md` length description in `README.md`.
+- **Standardization**: Aligned error handling examples with the latest framework architecture.
 
 ### v1.0.6 — Shell Events & Real-Time Logging
 

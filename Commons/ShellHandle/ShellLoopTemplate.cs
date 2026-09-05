@@ -24,7 +24,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             Action<string, bool>? postProcessor = null,
             Func<bool>? exitCondition = null,
             Action<string, string[]>? commandPreAction = null,
-            Action<string, string[], bool>? commandPostAction = null)
+            Action<string, string[], bool>? commandPostAction = null
+        )
         {
             bool isRunning = true;
 
@@ -65,10 +66,15 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                                     if (inputBuilder.Length > 0)
                                     {
                                         inputBuilder.Remove(inputBuilder.Length - 1, 1);
-                                        LogManager.SetActiveContext(segments, inputBuilder.ToString());
+                                        LogManager.SetActiveContext(
+                                            segments,
+                                            inputBuilder.ToString()
+                                        );
                                         int currentTop = Console.CursorTop;
                                         Console.SetCursorPosition(0, currentTop);
-                                        Console.Write(new string(' ', Math.Max(0, Console.WindowWidth - 1)));
+                                        Console.Write(
+                                            new string(' ', Math.Max(0, Console.WindowWidth - 1))
+                                        );
                                         Console.SetCursorPosition(0, currentTop);
 
                                         foreach (var segment in segments)
@@ -95,7 +101,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     }
 
                     string input = inputBuilder.ToString().Trim();
-                    if (string.IsNullOrEmpty(input)) continue;
+                    if (string.IsNullOrEmpty(input))
+                        continue;
 
                     preProcessor?.Invoke(input);
 
