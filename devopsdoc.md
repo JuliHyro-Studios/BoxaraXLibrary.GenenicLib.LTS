@@ -469,35 +469,57 @@ The main builder for creating and configuring shells.
 ```csharp
 public static class ShelliftAPIBuild
 {
-	// Create a new shell configuration
+	// --- Quick Launch Methods ---
+
+	// Open a shell immediately using default settings
+	public static void OpenShell(string shellName) { }
+
+	// Open a shell and return the exit code
+	public static int OpenShellWithResult(string shellName) { }
+
+	// Open a shell with custom inline configuration
+	public static void OpenShell(string shellName, Action<ShelliftAPIBuild>? config) { }
+
+	// Open a shell with config and return detailed result (Code & Message)
+	public static (int Code, string Message) OpenShellWithResult(string shellName, Action<ShelliftAPIBuild>? config) { }
+
+	// --- Fluent Configuration ---
+
+	// Create a new shell configuration (Must be called from an IShell implementation)
 	public static ShelliftAPIBuild Create() { }
 
-	// Load commands from a specific shell
+	// Load commands from a specific shell registration
 	public static ShelliftAPIBuild SelectCommandShellLoad(string shellName) { }
 
 	// Set window title and startup message
 	public static ShelliftAPIBuild WithTitle(string title, string message) { }
 
-	// Select built-in header style
-	public static ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string extraInfo = "") { }
+	// Select built-in header style (e.g., HeaderStyle.Modern)
+	public static ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string? welcomeMessage = null) { }
 
-	// Select custom header renderer
+	// Select custom header renderer logic
 	public static ShelliftAPIBuild SelectCustomHeader(Action renderHeader) { }
 
-	// Select built-in prompt style
-	public static ShelliftAPIBuild SelectShellPrompt(PromptStyle style, string promptName) { }
+	// Select built-in prompt style (e.g., PromptStyle.FullInfo)
+	public static ShelliftAPIBuild SelectShellPrompt(PromptStyle style, string customName = "BoxaraHS") { }
 
-	// Select custom prompt generator
-	public static ShelliftAPIBuild SelectCustomPrompt(Func<string> promptProvider, ConsoleColor color) { }
+	// Select custom prompt generator logic
+	public static ShelliftAPIBuild SelectCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan) { }
 
-	// Set app name (for display)
+	// Set app metadata for display in prompts/headers
 	public static ShelliftAPIBuild WithAppName(string appName) { }
-
-	// Set app version (for display)
 	public static ShelliftAPIBuild WithAppVersion(string version) { }
+
+	// Custom Input/Process Pipeline
+	public static ShelliftAPIBuild WithInputProvider(Func<string> inputProvider) { }
+	public static ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor) { }
+	public static ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor) { }
+	public static ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition) { }
 
 	// Build and run the shell (terminal blocking)
 	public static void Build() { }
+}
+```
 
 	// Build and open shell with result (non-blocking)
 	public static void OpenShellWithResult(string shellName) { }
@@ -521,16 +543,22 @@ ShelliftAPIBuild.Create()
 
 ### `ShellLoopTemplate`
 
-Manages the main command input loop.
+Manages the main command input loop with real-time prompt rendering.
 
 ```csharp
 public static class ShellLoopTemplate
 {
-	public static void InitializeShellLoop(
-		Func<string> inputProvider,
-		Action<string> preProcessor,
-		Action<string> postProcessor,
-		Func<string, bool> exitCondition)
+	public static void Run(
+		List<PromptSegment> segments,
+		List<ICommand> commands,
+		string shellName,
+		Func<string>? inputProvider = null,
+		Action<string>? preProcessor = null,
+		Action<string, bool>? postProcessor = null,
+		Func<bool>? exitCondition = null,
+		Action<string, string[]>? commandPreAction = null,
+		Action<string, string[], bool>? commandPostAction = null
+	)
 	{ }
 }
 ```
