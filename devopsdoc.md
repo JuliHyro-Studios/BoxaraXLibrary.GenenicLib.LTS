@@ -205,6 +205,7 @@ public void Command_ShouldExecuteSuccessfully()
 ### ⚠️ Internal Components (Framework Only)
 The following components are marked as `internal` and are managed automatically by the framework. They are **not accessible** to Dev-Apps:
 - `ErrorShellTemplate` — Handles the internal rendering of standardized error messages.
+- `LogConsole` — Internal console renderer used by LogManager and Shell Engine.
 - `codeint` — Defines core system return codes used for internal logic.
 
 ### Core Interfaces
@@ -212,7 +213,6 @@ The following components are marked as `internal` and are managed automatically 
 
 - `ICommand` — Command contract
 - `IShell` — Shell contract
-- `IAuthenticator` — Authentication contract
 
 ### Shell Building
 
@@ -228,8 +228,7 @@ The following components are marked as `internal` and are managed automatically 
 
 ### Logging
 
-- `LogConsole` — Console logging
-- `LogManager` — Real-time logging
+- `LogManager` — Real-time logging system
 
 ### UI
 
@@ -275,14 +274,9 @@ var shell = ReflectionShellTemplate.GetCurrentShell();
 ```
 BoxaraXLibrary.GenenicLib.LTS/
 ├── Commons/
-│   ├── AuthHandle/ # Authentication system
-│   │   ├── AuthenticationHelper.cs
-│   │   └── ReflectionAuthenticatorTemplate.cs
 │   ├── basicUtils/ # Utility helpers
-│   │   ├── AuthMode.cs
-│   │   └── ConvertSymbolUniverse.cs
+│   │   ├── ConvertSymbolUniverse.cs
 │   ├── Interface/ # Core contracts
-│   │   ├── IAuthenticator.cs
 │   │   ├── ICommand.cs
 │   │   ├── IShellExecute.cs (IShell)
 │   │   └── NonLoadableCommandAttribute.cs
@@ -748,109 +742,7 @@ ExternalCommandManager.RegisterExternalCommands(commands);
 
 ---
 
-## Authentication System
-
-### `AuthenticationHelper`
-
-Provides utilities for authentication flows.
-
-```csharp
-public static class AuthenticationHelper
-{
-	public static bool AuthenticateUser(string username, string password, IAuthenticator authenticator)
-	{
-		return authenticator.Authenticate(username, password, AuthMode.Local);
-	}
-}
-```
-
----
-
-### `ReflectionAuthenticatorTemplate`
-
-Auto-discovers and loads authenticators using reflection.
-
-```csharp
-public static class ReflectionAuthenticatorTemplate
-{
-	public static List<IAuthenticator> GetAllAuthenticators() { }
-	public static IAuthenticator? GetAuthenticatorByName(string name) { }
-}
-```
-
-**Complete Authentication Flow Example:**
-
-```csharp
-public class AdminShell : IShellExecute
-{
-	public string ShellName => "AdminShell";
-	public string Description => "Admin-only shell";
-	public string Category => "System";
-	public string ShellVersion => "1.0.0";
-
-	public void Execute()
-	{
-		// 1. Get available authenticators
-		var authenticators = ReflectionAuthenticatorTemplate.GetAllAuthenticators();
-		if (!authenticators.Any())
-		{
-			Console.WriteLine("[X] No authenticators found");
-			return;
-		}
-
-		// 2. Prompt for credentials
-		Console.Write("Username: ");
-		var username = Console.ReadLine() ?? "";
-		Console.Write("Password: ");
-		var password = Console.ReadLine() ?? "";
-
-		// 3. Authenticate
-		var authenticator = authenticators[0];
-		var isAuthenticated = AuthenticationHelper.AuthenticateUser(username, password, authenticator);
-
-		if (!isAuthenticated)
-		{
-			Console.WriteLine("[X] Authentication failed");
-			return;
-		}
-
-		// 4. Start shell if authenticated
-		ShelliftAPIBuild.Create()
-			.SelectCommandShellLoad(ShellName)
-			.WithTitle("Admin Shell", "Welcome Admin!")
-			.Build();
-	}
-}
-```
-
----
-
 ## Utility Helpers
-
-### `AuthMode` Enum
-
-Specifies authentication modes supported by authenticators.
-
-```csharp
-public enum AuthMode
-{
-	Local,      // Local authentication (Windows AD, etc.)
-	Remote,     // Remote authentication (HTTP API, LDAP, etc.)
-	OAuth2,     // OAuth2 authentication
-	SAML        // SAML2 authentication
-}
-```
-
-**Usage:**
-
-```csharp
-public class MyAuthenticator : IAuthenticator
-{
-	public AuthMode[] SupportedModes => new[] { AuthMode.Local, AuthMode.OAuth2 };
-}
-```
-
----
 
 ### `ConvertSymbolUniverse`
 
@@ -956,6 +848,12 @@ public static class LogManager
 `LogManager` provides non-blocking logging that doesn't interfere with user input:
 
 ```csharp
+// Clear the console screen safely
+LogManager.Clear();
+
+// Clear the screen and re-render the shell prompt/header
+LogManager.Clear(isShowShell: true);
+
 // Background task for monitoring
 Task.Run(async () =>
 {
@@ -967,6 +865,7 @@ Task.Run(async () =>
 		LogManager.Log($"Monitor: {count} seconds elapsed");
 	}
 });
+```
 
 // Start shell - user can still type while background logs appear
 ShelliftAPIBuild.Create()
@@ -1699,12 +1598,16 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
-### v1.0.7.3 — Internal Tooling Update
+### v1.0.7.3 — Internal Tooling & Cleanup
 
 - **Developer Tooling**: Added `pack.py` as a cross-platform Python equivalent to `pack.bat`.
   - *Note: This is an internal developer tool used exclusively for library packaging and verification; it is not intended for end-users of the library.*
 
 - **Workflow Synchronization**: Provides a consistent build and packaging workflow across supported operating systems using the Python standard library.
+
+- **Framework Lean-up**: Completely removed the Authentication system (`IAuthenticator`, `AuthHandle`, `AuthMode`) to reduce complexity and focus on core shell functionality.
+
+- **Logging Refactor**: Internalized `LogConsole` to prevent direct console manipulation by apps, exposing a safe `LogManager.Clear()` method for screen clearing.
 
 ### v1.0.7.2 — Duplicate Command Selection Feature
 - **Command Resolution**: Implemented "Select Command Duplicate" feature in `CommandProcessorTemplate` to handle multiple commands with the same name or alias.

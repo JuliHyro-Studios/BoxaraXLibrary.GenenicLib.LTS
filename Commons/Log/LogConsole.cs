@@ -1,16 +1,19 @@
-﻿using BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
+using BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle;
 
 namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
 {
-    public static class LogConsole
+    internal static class LogConsole
     {
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetStdHandle(int nStdHandle);
 
         [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleCursorPosition(IntPtr hConsoleOutput, COORD dwCursorPosition);
+        private static extern bool SetConsoleCursorPosition(
+            IntPtr hConsoleOutput,
+            COORD dwCursorPosition
+        );
 
         [DllImport("kernel32.dll")]
         private static extern bool FillConsoleOutputCharacter(
@@ -22,7 +25,10 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
         );
 
         [DllImport("kernel32.dll")]
-        private static extern bool GetConsoleScreenBufferInfo(IntPtr hConsoleOutput, out CONSOLE_SCREEN_BUFFER_INFO lpConsoleScreenBufferInfo);
+        private static extern bool GetConsoleScreenBufferInfo(
+            IntPtr hConsoleOutput,
+            out CONSOLE_SCREEN_BUFFER_INFO lpConsoleScreenBufferInfo
+        );
 
         [StructLayout(LayoutKind.Sequential)]
         private struct COORD
@@ -49,7 +55,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
             public short Bottom;
         }
 
-        
         public static void Clear(string DateTimeCalled = "nodate", bool IsShowShell = false)
         {
             try
@@ -72,13 +77,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
 
                 COORD topLeft = new COORD { X = 0, Y = 0 };
 
-                FillConsoleOutputCharacter(
-                    hConsole,
-                    ' ',
-                    (uint)(width * height),
-                    topLeft,
-                    out _
-                );
+                FillConsoleOutputCharacter(hConsole, ' ', (uint)(width * height), topLeft, out _);
 
                 SetConsoleCursorPosition(hConsole, topLeft);
 
@@ -118,7 +117,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
             }
         }
 
-        
         public static void WriteLine(string DateTimeCalled = "nodate")
         {
             Console.WriteLine();
@@ -143,7 +141,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
         {
             Console.ResetColor();
         }
-
 
         public static ConsoleColor ForegroundColor
         {

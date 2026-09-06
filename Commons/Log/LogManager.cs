@@ -31,6 +31,11 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.Log
             }
         }
 
+        public static void Clear(bool isShowShell = false)
+        {
+            LogConsole.Clear(IsShowShell: isShowShell);
+        }
+
         public static void Log(string message)
         {
             lock (RenderLock)
