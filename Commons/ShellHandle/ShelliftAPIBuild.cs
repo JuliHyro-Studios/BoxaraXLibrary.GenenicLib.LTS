@@ -1,8 +1,8 @@
-﻿using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
-using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
+using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
 
 namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 {
@@ -10,7 +10,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
     {
         private string _shellName = "MainShell";
         private HeaderStyle _headerStyle = HeaderStyle.Classic;
-        private string _headerWelcomeMessage = "Type 'help' or 'cls' to start. Type 'exit' to quit the application!\n";
+        private string _headerWelcomeMessage =
+            "Type 'help' or 'cls' to start. Type 'exit' to quit the application!\n";
         private PromptStyle _promptStyle = PromptStyle.Default;
         private string _promptCustomName = "BoxaraHS";
         private List<ICommand> _commands = null!;
@@ -26,10 +27,12 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         private bool _isCustomPromptSet = false;
         private Func<string>? _customPromptGenerator;
         private ConsoleColor _customPromptColor = ConsoleColor.Cyan;
+
         private ShelliftAPIBuild() { }
+
         private Func<List<PromptSegment>, List<ICommand>, Action>? _customLoopBuilder;
         private bool _isCustomHeaderSet = false;
-        private Action? _customHeaderRenderer;  
+        private Action? _customHeaderRenderer;
         private Action<string, string[], DateTime, string>? _titlePreAction;
         private Action<string, string[], DateTime, string>? _titlePostAction;
         private Action<string, string[]>? _commandPreAction;
@@ -41,6 +44,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         private Action<string>? _onCommandExecuted;
         private Action<string>? _onCommandFailed;
         private Action<string>? _onPromptRendered;
+
         public static ShelliftAPIBuild Create()
         {
             var stackTrace = new StackTrace(true);
@@ -53,25 +57,34 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             if (callerType != null && !typeof(IShell).IsAssignableFrom(callerType))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("╔══════════════════════════════════════════════════════════════════╗");
-                Console.WriteLine("║  [FRAMEWORK ERROR] ShelliftAPIBuild.Create()                   ║");
-                Console.WriteLine("╠══════════════════════════════════════════════════════════════════╣");
+                Console.WriteLine(
+                    "╔══════════════════════════════════════════════════════════════════╗"
+                );
+                Console.WriteLine(
+                    "║  [FRAMEWORK ERROR] ShelliftAPIBuild.Create()                   ║"
+                );
+                Console.WriteLine(
+                    "╠══════════════════════════════════════════════════════════════════╣"
+                );
                 Console.WriteLine($"║  Caller   : {callerType?.FullName}.{callerMethod?.Name}()");
                 Console.WriteLine($"║  File     : {callerFile ?? "Unknown"} (line {callerLine})");
-                Console.WriteLine("║  Reason   : Caller must implement IShell interface.            ║");
-                Console.WriteLine("╚══════════════════════════════════════════════════════════════════╝");
+                Console.WriteLine(
+                    "║  Reason   : Caller must implement IShell interface.            ║"
+                );
+                Console.WriteLine(
+                    "╚══════════════════════════════════════════════════════════════════╝"
+                );
                 Console.ResetColor();
 
                 throw new InvalidOperationException(
-                    $"ShelliftAPIBuild.Create() must be called from a class implementing IShell. " +
-                    $"Caller: {callerType?.FullName}.{callerMethod?.Name}()"
+                    $"ShelliftAPIBuild.Create() must be called from a class implementing IShell. "
+                        + $"Caller: {callerType?.FullName}.{callerMethod?.Name}()"
                 );
             }
 
             return new ShelliftAPIBuild();
         }
 
-        
         public static void OpenShell(string shellName)
         {
             LogConsole.Clear(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -92,7 +105,10 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             api.Build();
         }
 
-        public static (int Code, string Message) OpenShellWithResult(string shellName, Action<ShelliftAPIBuild>? config)
+        public static (int Code, string Message) OpenShellWithResult(
+            string shellName,
+            Action<ShelliftAPIBuild>? config
+        )
         {
             try
             {
@@ -106,7 +122,9 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"[CRITICAL LIBRARY EXCEPTION] Failed inside OpenShellWithResult for shell '{shellName}':");
+                Console.WriteLine(
+                    $"[CRITICAL LIBRARY EXCEPTION] Failed inside OpenShellWithResult for shell '{shellName}':"
+                );
                 Console.WriteLine(ex.ToString());
                 Console.ResetColor();
 
@@ -114,19 +132,19 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             }
         }
 
-        
         public ShelliftAPIBuild SelectCommandShellLoad(string shellName)
         {
             _shellName = shellName;
             return this;
         }
+
         public ShelliftAPIBuild SelectCustomHeader(Action renderHeader)
         {
             if (_isCustomHeaderSet)
             {
                 throw new InvalidOperationException(
-                    "Cannot call SelectCustomHeader() after SelectShellHeaderTemplate() has been used. " +
-                    "Choose one: either built-in header OR custom header generator."
+                    "Cannot call SelectCustomHeader() after SelectShellHeaderTemplate() has been used. "
+                        + "Choose one: either built-in header OR custom header generator."
                 );
             }
 
@@ -134,13 +152,17 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _customHeaderRenderer = renderHeader;
             return this;
         }
-        public ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string? welcomeMessage = null)
+
+        public ShelliftAPIBuild SelectShellHeaderTemplate(
+            HeaderStyle style,
+            string? welcomeMessage = null
+        )
         {
             if (_isCustomHeaderSet)
             {
                 throw new InvalidOperationException(
-                    "Cannot call SelectShellHeaderTemplate() after SelectCustomHeader() has been used. " +
-                    "Choose one: either built-in header OR custom header generator."
+                    "Cannot call SelectShellHeaderTemplate() after SelectCustomHeader() has been used. "
+                        + "Choose one: either built-in header OR custom header generator."
                 );
             }
 
@@ -155,8 +177,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             if (_isCustomPromptSet)
             {
                 throw new InvalidOperationException(
-                    "Cannot call SelectShellPrompt() after SelectCustomPrompt() has been used. " +
-                    "Choose one: either built-in prompt styles OR custom prompt generator."
+                    "Cannot call SelectShellPrompt() after SelectCustomPrompt() has been used. "
+                        + "Choose one: either built-in prompt styles OR custom prompt generator."
                 );
             }
 
@@ -164,13 +186,17 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _promptCustomName = customName;
             return this;
         }
-        public ShelliftAPIBuild SelectCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan)
+
+        public ShelliftAPIBuild SelectCustomPrompt(
+            Func<string> promptGenerator,
+            ConsoleColor color = ConsoleColor.Cyan
+        )
         {
             if (_promptStyle != PromptStyle.Default && _promptStyle != PromptStyle.Custom)
             {
                 throw new InvalidOperationException(
-                    "Cannot call SelectCustomPrompt() after SelectShellPrompt() has been used. " +
-                    "Choose one: either built-in prompt styles OR custom prompt generator."
+                    "Cannot call SelectCustomPrompt() after SelectShellPrompt() has been used. "
+                        + "Choose one: either built-in prompt styles OR custom prompt generator."
                 );
             }
 
@@ -179,6 +205,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _customPromptColor = color;
             return this;
         }
+
         public ShelliftAPIBuild WithInputProvider(Func<string> inputProvider)
         {
             _customInputProvider = inputProvider;
@@ -202,21 +229,25 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _customExitCondition = exitCondition;
             return this;
         }
+
         public ShelliftAPIBuild WithCustomHeader(string customHeader)
         {
             _headerWelcomeMessage = customHeader;
             return this;
         }
+
         public ShelliftAPIBuild WithExtraHeaderInfo(string extraInfo)
         {
             _headerExtraInfo = extraInfo;
             return this;
         }
+
         public ShelliftAPIBuild WithCustomPromptText(string customText)
         {
             _promptCustomName = customText;
             return this;
         }
+
         public ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction)
         {
             _commandPreAction = preAction;
@@ -277,17 +308,23 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _titleReasons = reasons;
             return this;
         }
-        public ShelliftAPIBuild WithTitlePreAction(Action<string, string[], DateTime, string> preAction)
+
+        public ShelliftAPIBuild WithTitlePreAction(
+            Action<string, string[], DateTime, string> preAction
+        )
         {
             _titlePreAction = preAction;
             return this;
         }
 
-        public ShelliftAPIBuild WithTitlePostAction(Action<string, string[], DateTime, string> postAction)
+        public ShelliftAPIBuild WithTitlePostAction(
+            Action<string, string[], DateTime, string> postAction
+        )
         {
             _titlePostAction = postAction;
             return this;
         }
+
         public ShelliftAPIBuild WithAppName(string appName)
         {
             _appName = appName ?? "BoxaraHS";
@@ -299,6 +336,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _appVersion = appVersion ?? "1.0.0";
             return this;
         }
+
         private void ValidateConfiguration()
         {
             if (string.IsNullOrWhiteSpace(_shellName))
@@ -311,16 +349,16 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             if (_isCustomHeaderSet && _customHeaderRenderer == null)
             {
                 throw new InvalidOperationException(
-                    "[VALIDATION ERROR] Custom header was configured but no renderer provided. " +
-                    "Use SelectCustomHeader(renderAction) correctly."
+                    "[VALIDATION ERROR] Custom header was configured but no renderer provided. "
+                        + "Use SelectCustomHeader(renderAction) correctly."
                 );
             }
 
             if (_isCustomPromptSet && _customPromptGenerator == null)
             {
                 throw new InvalidOperationException(
-                    "[VALIDATION ERROR] Custom prompt was configured but no generator provided. " +
-                    "Use SelectCustomPrompt(generatorFunc) correctly."
+                    "[VALIDATION ERROR] Custom prompt was configured but no generator provided. "
+                        + "Use SelectCustomPrompt(generatorFunc) correctly."
                 );
             }
         }
@@ -330,12 +368,11 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             if (commands == null)
             {
                 throw new InvalidOperationException(
-                    $"[SHELL ERROR] Failed to load commands for shell '{_shellName}'. " +
-                    $"ReflectionCommandShellTemplate.LoadCommandsForShell() returned null. " +
-                    $"Ensure the shell is registered in ShellRegistry."
+                    $"[SHELL ERROR] Failed to load commands for shell '{_shellName}'. "
+                        + $"ReflectionCommandShellTemplate.LoadCommandsForShell() returned null. "
+                        + $"Ensure the shell is registered in ShellRegistry."
                 );
             }
-
         }
 
         public int Build()
@@ -386,11 +423,17 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 List<PromptSegment> promptSegments;
                 if (_isCustomPromptSet && _customPromptGenerator != null)
                 {
-                    promptSegments = CommandPromptTemplate.GetCustomPrompt(_customPromptGenerator, _customPromptColor);
+                    promptSegments = CommandPromptTemplate.GetCustomPrompt(
+                        _customPromptGenerator,
+                        _customPromptColor
+                    );
                 }
                 else
                 {
-                    promptSegments = CommandPromptTemplate.GetPrompt(_promptStyle, _promptCustomName);
+                    promptSegments = CommandPromptTemplate.GetPrompt(
+                        _promptStyle,
+                        _promptCustomName
+                    );
                 }
 
                 foreach (var segment in promptSegments)
@@ -398,31 +441,33 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     _onPromptRendered?.Invoke(segment.Text);
                 }
 
-                var wrappedCommandPostAction = new Action<string, string[], bool>((cmd, args, success) =>
-                {
-                    _commandPostAction?.Invoke(cmd, args, success);
+                var wrappedCommandPostAction = new Action<string, string[], bool>(
+                    (cmd, args, success) =>
+                    {
+                        _commandPostAction?.Invoke(cmd, args, success);
 
-                    if (success)
-                    {
-                        _onCommandExecuted?.Invoke(cmd);
+                        if (success)
+                        {
+                            _onCommandExecuted?.Invoke(cmd);
+                        }
+                        else
+                        {
+                            _onCommandFailed?.Invoke(cmd);
+                        }
                     }
-                    else
-                    {
-                        _onCommandFailed?.Invoke(cmd);
-                    }
-                });
+                );
 
                 ShellLoopTemplate.Run(
-            promptSegments,
-            _commands,
-            _shellName, 
-            _customInputProvider,
-            _customPreProcessor,
-            _customPostProcessor,
-            _customExitCondition,
-            _commandPreAction,
-            _commandPostAction
-        );
+                    promptSegments,
+                    _commands,
+                    _shellName,
+                    _customInputProvider,
+                    _customPreProcessor,
+                    _customPostProcessor,
+                    _customExitCondition,
+                    _commandPreAction,
+                    _commandPostAction
+                );
 
                 _onShellEnd?.Invoke();
 
@@ -434,7 +479,5 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 return codeint.FAILED;
             }
         }
-
-
     }
 }

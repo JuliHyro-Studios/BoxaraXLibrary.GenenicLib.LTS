@@ -491,8 +491,8 @@ public static class ShelliftAPIBuild
 	// Load commands from a specific shell registration
 	public static ShelliftAPIBuild SelectCommandShellLoad(string shellName) { }
 
-	// Set window title and startup message
-	public static ShelliftAPIBuild WithTitle(string title, string message) { }
+	// Set window title and startup message (supports multiple reasons)
+	public static ShelliftAPIBuild WithTitle(string title, params string[] reasons) { }
 
 	// Select built-in header style (e.g., HeaderStyle.Modern)
 	public static ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string? welcomeMessage = null) { }
@@ -510,14 +510,36 @@ public static class ShelliftAPIBuild
 	public static ShelliftAPIBuild WithAppName(string appName) { }
 	public static ShelliftAPIBuild WithAppVersion(string version) { }
 
+	// Quick Header/Prompt overrides
+	public static ShelliftAPIBuild WithCustomHeader(string customHeader) { }
+	public static ShelliftAPIBuild WithExtraHeaderInfo(string extraInfo) { }
+	public static ShelliftAPIBuild WithCustomPromptText(string customText) { }
+
 	// Custom Input/Process Pipeline
 	public static ShelliftAPIBuild WithInputProvider(Func<string> inputProvider) { }
 	public static ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor) { }
 	public static ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor) { }
 	public static ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition) { }
 
+	// Command Lifecycle Hooks (Fluent)
+	public static ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction) { }
+	public static ShelliftAPIBuild WithCommandPostAction(Action<string, string[], bool> postAction) { }
+
+	// Global Shell Event Hooks (Fluent)
+	public static ShelliftAPIBuild OnShellStart(Action onStart) { }
+	public static ShelliftAPIBuild OnShellEnd(Action onEnd) { }
+	public static ShelliftAPIBuild OnShellError(Action<Exception> onError) { }
+	public static ShelliftAPIBuild OnCommandsLoaded(Action<List<ICommand>> onLoaded) { }
+	public static ShelliftAPIBuild OnCommandExecuted(Action<string> onExecuted) { }
+	public static ShelliftAPIBuild OnCommandFailed(Action<string> onFailed) { }
+	public static ShelliftAPIBuild OnPromptRendered(Action<string> onRendered) { }
+
+	// Title Hooks
+	public static ShelliftAPIBuild WithTitlePreAction(Action<string, string[], DateTime, string> preAction) { }
+	public static ShelliftAPIBuild WithTitlePostAction(Action<string, string[], DateTime, string> postAction) { }
+
 	// Build and run the shell (terminal blocking)
-	public static void Build() { }
+	public static int Build() { }
 }
 ```
 
@@ -1142,11 +1164,14 @@ titleSet.WithTitlePostAction(() => Console.Beep());
 ### Shell Loop Hooks
 
 ```csharp
-ShellLoopTemplate.InitializeShellLoop(
+ShellLoopTemplate.Run(
+	segments: myPromptSegments,
+	commands: myCommands,
+	shellName: "MainShell",
 	inputProvider: () => Console.ReadLine() ?? "",
 	preProcessor: input => LogManager.Log($"Processing: {input}"),
-	postProcessor: input => { },
-	exitCondition: input => input?.ToLower() == "exit"
+	postProcessor: (input, result) => LogManager.Log($"Processed {input}. Success: {result}"),
+	exitCondition: () => someExitFlag
 );
 ```
 
