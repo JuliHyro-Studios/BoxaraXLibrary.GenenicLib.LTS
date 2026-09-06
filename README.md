@@ -27,7 +27,6 @@
 > **devopsdoc.md includes:**
 > - 🎯 Advanced patterns & best practices
 > - 🛡️ Error handling & validation
-> - 🔐 Authentication system (detailed)
 > - 🧩 Extensibility & customization
 > - 📊 Performance optimization
 > - 🔄 Threading & thread safety
@@ -46,11 +45,10 @@
 - 🎨 **Fluent API** — Build shells with a clean, expressive fluent interface
 - 🌈 **Rich Console UI** — 16+ header styles, 10+ prompt styles, table formatter, colored logs
 - 📝 **Real-Time Logging** — Log messages while user is typing (via `LogManager`)
-- 🔐 **Authentication** — Built-in authentication support with multiple auth modes
-- 🔄 **Event System** — Subscribe to shell lifecycle events (start, end, error, command execution)
+-  **Event System** — Subscribe to shell lifecycle events (start, end, error, command execution)
 - 📦 **Cross-Platform** — Works on Windows, Linux, and macOS via .NET
 - ⚡ **Lightweight** — Zero external dependencies, minimal footprint
-- 🧩 **Extensible** — Easy to extend with custom commands, shells, and authenticators
+- 🧩 **Extensible** — Easy to extend with custom commands, shells, and console experiences
 
 ### 📦 Use Cases
 
@@ -123,9 +121,10 @@ BoxaraXLibrary.GenenicLib.LTS/bin/Release/net7.0/BoxaraXLibrary.GenenicLib.LTS.d
 using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
 using BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle;
 
-public class MyShell : IShellExecute
+public sealed class MyShell : IShell
 {
 	public string ShellName => "MyShell";
+	public string DisplayName => "My custom shell";
 	public string Description => "My custom shell";
 	public string Category => "Demo";
 	public string ShellVersion => "1.0.0";
@@ -134,7 +133,6 @@ public class MyShell : IShellExecute
 	{
 		ShelliftAPIBuild.Create()
 			.SelectCommandShellLoad(ShellName)
-			.WithTitle("My Shell", "Starting...")
 			.SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
 			.SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
 			.WithAppName("MyApp")
@@ -180,13 +178,14 @@ ShelliftAPIBuild.OpenShellWithResult("MyShell");
 
 ## 🎯 Core Interfaces
 
-### `IShellExecute`
+### `IShell`
 
 Defines a shell contract.
 
 | Property | Description |
 |----------|-------------|
 | `ShellName` | Unique identifier |
+| `DisplayName` | Human-readable shell name |
 | `Description` | Brief description |
 | `Category` | Grouping category |
 | `ShellVersion` | Version string |
@@ -206,9 +205,6 @@ Defines a command contract.
 | `CommandVersion` | Version string |
 | `Parameter` | Supported parameters |
 
-### `IAuthenticator`
-
-Defines an authentication provider.
 
 ---
 
@@ -236,17 +232,12 @@ ShelliftAPIBuild.Create()
 
 ## 📝 Logging
 
-### LogConsole (Immediate)
-
-```csharp
-LogConsole.ForegroundColor = ConsoleColor.Green;
-LogConsole.WriteLine("Success!", DateTime.Now.ToString("HH:mm:ss"));
-LogConsole.ResetColor();
-```
-
 ### LogManager (Real-Time)
 
 ```csharp
+// Clear the screen safely
+LogManager.Clear();
+
 // Log while shell is running (non-blocking)
 Task.Run(async () =>
 {
@@ -261,10 +252,12 @@ Task.Run(async () =>
 
 ShelliftAPIBuild.Create()
 	.SelectCommandShellLoad("MyShell")
+	.SelectShellHeaderTemplate(HeaderStyle.Modern, "Welcome!\n")
+	.SelectShellPrompt(PromptStyle.FullInfo, "MyShell")
 	.Build();
 ```
 
-> ⚠️ **Important:** Use `LogManager.Log()` instead of `Console.WriteLine()` while the shell is running to avoid interfering with user input.
+> ⚠️ **Important:** Use `LogManager.Log()` and `LogManager.Clear()` instead of direct console methods while the shell is running to avoid interfering with user input.
 
 ---
 
@@ -278,8 +271,7 @@ This README covers the basics to get you started. For **comprehensive documentat
 - **Shell Engine** — ShelliftAPIBuild, ShellRegistry, events
 - **Command System** — Command discovery, external loading, processors
 - **Error Handling** — ErrorShellTemplate with examples
-- **Authentication** — IAuthenticator implementation patterns
-- **Logging System** — LogConsole and LogManager deep dive
+- **Logging System** — LogManager deep dive
 - **UI Components** — All header/prompt styles, custom templates
 - **Fluent API** — Complete builder reference
 - **Shell Events & Hooks** — Event subscription patterns
