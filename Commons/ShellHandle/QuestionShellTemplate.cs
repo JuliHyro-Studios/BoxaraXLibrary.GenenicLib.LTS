@@ -14,7 +14,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             string cancelText = "N",
             int timeoutSeconds = -1,
             string timeoutMessage = "Operation timed out. Defaulting action.",
-            bool continueOnTimeout = false)
+            bool continueOnTimeout = false
+        )
         {
             string time = GetCurrentTime();
 

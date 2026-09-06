@@ -56,23 +56,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             )
                         )
                         {
-                            bool alreadyLoaded = commandList.Any(c =>
-                                string.Equals(
-                                    c.Name,
-                                    instance.Name,
-                                    StringComparison.OrdinalIgnoreCase
-                                )
-                                && string.Equals(
-                                    c.Shell,
-                                    instance.Shell,
-                                    StringComparison.OrdinalIgnoreCase
-                                )
-                            );
-
-                            if (!alreadyLoaded)
-                            {
-                                commandList.Add(instance);
-                            }
+                            commandList.Add(instance);
                         }
                     }
                 }
@@ -96,23 +80,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             )
                         )
                         {
-                            if (
-                                !commandList.Any(c =>
-                                    string.Equals(
-                                        c.Name,
-                                        cmd.Name,
-                                        StringComparison.OrdinalIgnoreCase
-                                    )
-                                    && string.Equals(
-                                        c.Shell,
-                                        cmd.Shell,
-                                        StringComparison.OrdinalIgnoreCase
-                                    )
-                                )
-                            )
-                            {
-                                commandList.Add(cmd);
-                            }
+                            commandList.Add(cmd);
                         }
                     }
                 }
@@ -152,8 +120,9 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     .Where(t =>
                         typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract
                     )
-                    .Where(t => t.GetCustomAttribute<NonLoadableCommandAttribute>() == null);
-
+                    .Where(t => t.GetCustomAttribute<NonLoadableCommandAttribute>() == null)
+                    .GroupBy(t => new { Assembly = t.Assembly.FullName, Type = t.FullName })
+                    .Select(g => g.First());
                 foreach (var type in commandTypes)
                 {
                     try

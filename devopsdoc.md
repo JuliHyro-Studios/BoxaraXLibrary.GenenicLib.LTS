@@ -1630,6 +1630,13 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
+### v1.0.7.2 — Duplicate Command Selection Feature
+- **Command Resolution**: Implemented "Select Command Duplicate" feature in `CommandProcessorTemplate` to handle multiple commands with the same name or alias.
+- **User Interaction**: Added an interactive selection menu showing command metadata (DisplayName, Assembly, Type, Aliases, Description) when duplicates are detected.
+- **Control Tokens**: Introduced internal selection control tokens (`exit` and `cancel`) to allow users to cancel the selection process without executing any command.
+- **Type Deduplication**: Integrated `GroupBy` logic to distinguish between multiple instances of the same Type (deduplicated) and different Types sharing the same command name (retained for selection).
+- **Robustness**: Added input validation for selection indices and null-checks to prevent crashes during cancelled selections.
+
 ### v1.0.7.1 — Internal Refactoring & Documentation Cleanup
 - **Encapsulation**: Changed `ErrorShellTemplate` to `internal` to prevent direct calls from Dev-Apps, enforcing the use of exception-based error handling.
 - **Documentation**: Updated `devopsdoc.md` to reflect internal components and correct the error handling flow (Throw Exception $\rightarrow$ Framework Catch).

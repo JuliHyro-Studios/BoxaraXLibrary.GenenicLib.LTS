@@ -24,6 +24,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<Compile Remove="LibraryTestestProjects\**\*.cs" />
 		<None Include="README.md" Pack="true" PackagePath="\"/>
 	</ItemGroup>
 
