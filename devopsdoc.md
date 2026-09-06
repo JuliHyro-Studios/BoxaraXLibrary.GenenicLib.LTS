@@ -79,17 +79,27 @@
 git clone https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS
 cd BoxaraXLibrary.GenenicLib.LTS
 
-# Build
+# Build the library
 dotnet build -c Release
-
-# Run tests
-dotnet test
 
 # Pack to NuGet
 dotnet pack -c Release -o ./nupkgs
 ```
 
 > **Note:** `dotnet test` requires a test project to be present in the solution.
+
+## 🛠️ Internal Testing Project
+
+The repository includes a pre-configured test project to verify the library's functionality without needing to set up a separate application.
+
+### Running the Test Shell
+To quickly verify the current state of the library, you can run the built-in test console:
+
+```bash
+dotnet run --project ./LibraryTestestProjects/ConsoleApp
+```
+
+> **Important Note:** `LibraryTestestProjects` is an internal project used exclusively for library development, verification, and demonstration. It is **not** part of the NuGet distribution and is not intended to be forked or modified by end-users.
 
 ### First App
 
@@ -362,13 +372,13 @@ public class MyCommand : ICommand
 The contract for shell implementations.
 
 ```csharp
-public interface IShellExecute
+public interface IShell
 {
 	string ShellName { get; }
+	string DisplayName { get; }
 	string Description { get; }
 	string Category { get; }
 	string ShellVersion { get; }
-
 	void Execute();
 }
 ```
@@ -376,10 +386,11 @@ public interface IShellExecute
 **Usage:**
 
 ```csharp
-public class MyShell : IShellExecute
+public class MyShell : IShell
 {
 	public string ShellName => "MyShell";
-	public string Description => "My custom shell";
+	public string DisplayName => "My custom shell";
+	public string Description => "A professional shell implementation";
 	public string Category => "Custom";
 	public string ShellVersion => "1.0.0";
 
@@ -406,10 +417,11 @@ The contract for authentication providers.
 ```csharp
 public interface IAuthenticator
 {
-	string AuthenticatorName { get; }
-	AuthMode[] SupportedModes { get; }
+	AuthMode Mode { get; }
+	string DisplayName { get; }
+	string Description { get; }
 
-	bool Authenticate(string username, string password, AuthMode mode);
+	bool Authenticate(string prompt, int timeRedirect);
 }
 ```
 
@@ -418,18 +430,18 @@ public interface IAuthenticator
 ```csharp
 public class SimpleAuthenticator : IAuthenticator
 {
-	public string AuthenticatorName => "SimpleAuth";
-	public AuthMode[] SupportedModes => new[] { AuthMode.Local, AuthMode.Remote };
+	public AuthMode Mode => AuthMode.Local;
+	public string DisplayName => "SimpleAuth";
+	public string Description => "A basic local authenticator";
 
-	public bool Authenticate(string username, string password, AuthMode mode)
+	public bool Authenticate(string prompt, int timeRedirect)
 	{
-		if (mode == AuthMode.Local)
-		{
-			return username == "admin" && password == "password123";
-		}
-		return false;
+		Console.Write(prompt);
+		var password = Console.ReadLine();
+		return password == "password123";
 	}
 }
+```
 ```
 
 ---
@@ -533,13 +545,13 @@ Manages shell discovery and registration.
 public static class ShellRegistry
 {
 	// Initialize the registry with all available shells
-	public static void Initialize() { }
+	public static int Initialize() { }
 
 	// Get all registered shells
-	public static List<IShellExecute> GetAllShells() { }
+	public static (int code, List<IShell> shells) GetAllShells() { }
 
-	// Execute a shell by name
-	public static void ExecuteShell(string shellName) { }
+	// Open and execute a shell by name
+	public static int OpenShell(string name) { }
 }
 ```
 
@@ -554,7 +566,11 @@ Handles command execution and error handling.
 ```csharp
 public static class CommandProcessorTemplate
 {
-	public static void ProcessCommand(string input, List<ICommand> commands) { }
+	public static bool Process(
+		string input,
+		List<ICommand> commands,
+		Action<string, string[]>? preAction = null,
+		Action<string, string[], bool>? postAction = null) { }
 
 	public static void WithCommandPreAction(Action<ICommand> action) { }
 	public static void WithCommandPostAction(Action<ICommand> action) { }
@@ -1630,12 +1646,20 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
+### v1.0.7.3 — Internal Tooling Update
+
+- **Developer Tooling**: Added `pack.py` as a cross-platform Python equivalent to `pack.bat`.
+  - *Note: This is an internal developer tool used exclusively for library packaging and verification; it is not intended for end-users of the library.*
+
+- **Workflow Synchronization**: Provides a consistent build and packaging workflow across supported operating systems using the Python standard library.
+
 ### v1.0.7.2 — Duplicate Command Selection Feature
 - **Command Resolution**: Implemented "Select Command Duplicate" feature in `CommandProcessorTemplate` to handle multiple commands with the same name or alias.
 - **User Interaction**: Added an interactive selection menu showing command metadata (DisplayName, Assembly, Type, Aliases, Description) when duplicates are detected.
 - **Control Tokens**: Introduced internal selection control tokens (`exit` and `cancel`) to allow users to cancel the selection process without executing any command.
 - **Type Deduplication**: Integrated `GroupBy` logic to distinguish between multiple instances of the same Type (deduplicated) and different Types sharing the same command name (retained for selection).
 - **Robustness**: Added input validation for selection indices and null-checks to prevent crashes during cancelled selections.
+- **Internal Testing**: Added `LibraryTestestProjects` internal project to facilitate development and verification of duplicate command scenarios.
 
 ### v1.0.7.1 — Internal Refactoring & Documentation Cleanup
 - **Encapsulation**: Changed `ErrorShellTemplate` to `internal` to prevent direct calls from Dev-Apps, enforcing the use of exception-based error handling.
