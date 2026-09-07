@@ -18,6 +18,18 @@
                 "clear": false
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Build ConsoleApp Tests",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/LibraryTestestProjects/ConsoleApp/ConsoleApp.csproj",
+                "--configuration",
+                "Debug"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }

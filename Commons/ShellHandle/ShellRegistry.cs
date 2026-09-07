@@ -15,7 +15,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         {
             lock (_lock)
             {
-                if (_initialized) return codeint.SUCESS;
+                if (_initialized)
+                    return codeint.SUCESS;
 
                 try
                 {
@@ -43,12 +44,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             try
             {
                 var shell = _cachedShells?.FirstOrDefault(s =>
-                    string.Equals(s.ShellName, name, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(s.ShellName, name, StringComparison.OrdinalIgnoreCase)
+                );
 
                 if (shell != null)
                     return (codeint.SUCESS, shell);
 
-                                shell = ReflectionShellTemplate.GetShellByName(name);
+                shell = ReflectionShellTemplate.GetShellByName(name);
                 if (shell != null)
                 {
                     if (_cachedShells != null && !_cachedShells.Contains(shell))
@@ -94,7 +96,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
             try
             {
-                var names = _cachedShells?.Select(s => s.ShellName).ToArray() ?? Array.Empty<string>();
+                var names =
+                    _cachedShells?.Select(s => s.ShellName).ToArray() ?? Array.Empty<string>();
                 return (codeint.SUCESS, names);
             }
             catch

@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Running ConsoleApp  Tests",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/LibraryTestestProjects/ConsoleApp/bin/Debug/net10.0/ConsoleApp.dll",
+            "cwd": "${workspaceFolder}/LibraryTestestProjects/ConsoleApp",
+            "preLaunchTask": "Build ConsoleApp Tests",
+            "stopAtEntry": false,
+            "console": "integratedTerminal"
+        }
+    ]
+}
