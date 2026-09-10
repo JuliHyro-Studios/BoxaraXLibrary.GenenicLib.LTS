@@ -301,12 +301,40 @@ BoxaraXLibrary.GenenicLib.LTS/
 │       ├── ShellLoopTemplate.cs
 │       ├── ShellRegistry.cs
 │       └── TableFormatterTemplate.cs
-├── CallDll.cs # Library verification & DLL loading
+├── CallDll.cs # Library availability helper
 ├── codeint.cs # Return codes (internal)
+├── LibraryTestestProjects/ # Internal developer verification projects
+│   └── ConsoleApp/ # Manual shell test application
 ├── LICENSE.txt # Apache 2.0 license
 ├── README.md # User documentation
 └── BoxaraXLibrary.GenenicLib.LTS.csproj
 ```
+
+> **Current structure:** The tree above describes v1.0.7.3 and later. The
+> `LibraryTestestProjects` directory belongs to the repository's developer
+> tooling and is excluded from the library assembly compilation and NuGet API.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.2 AND EARLIER — historical authentication structure</strong></summary>
+
+Before v1.0.7.3, the repository also contained the authentication subsystem:
+
+```
+Commons/
+├── AuthHandle/
+│   ├── AuthenticationHelper.cs
+│   └── ReflectionAuthenticatorTemplate.cs
+├── Interface/
+│   └── IAuthenticator.cs
+└── basicUtils/
+	└── AuthMode.cs
+```
+
+These files were removed in v1.0.7.3 together with the `IAuthenticator`,
+`AuthHandle`, and `AuthMode` APIs. This historical tree is retained for
+maintainers working with package versions that still included Authentication.
+
+</details>
 
 ---
 
@@ -469,7 +497,7 @@ public class HiddenCommand : ICommand
 The main builder for creating and configuring shells.
 
 ```csharp
-public static class ShelliftAPIBuild
+public sealed class ShelliftAPIBuild
 {
 	// --- Quick Launch Methods ---
 
@@ -491,62 +519,57 @@ public static class ShelliftAPIBuild
 	public static ShelliftAPIBuild Create() { }
 
 	// Load commands from a specific shell registration
-	public static ShelliftAPIBuild SelectCommandShellLoad(string shellName) { }
+	public ShelliftAPIBuild SelectCommandShellLoad(string shellName) { }
 
 	// Set window title and startup message (supports multiple reasons)
-	public static ShelliftAPIBuild WithTitle(string title, params string[] reasons) { }
+	public ShelliftAPIBuild WithTitle(string title, params string[] reasons) { }
 
 	// Select built-in header style (e.g., HeaderStyle.Modern)
-	public static ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string? welcomeMessage = null) { }
+	public ShelliftAPIBuild SelectShellHeaderTemplate(HeaderStyle style, string? welcomeMessage = null) { }
 
 	// Select custom header renderer logic
-	public static ShelliftAPIBuild SelectCustomHeader(Action renderHeader) { }
+	public ShelliftAPIBuild SelectCustomHeader(Action renderHeader) { }
 
 	// Select built-in prompt style (e.g., PromptStyle.FullInfo)
-	public static ShelliftAPIBuild SelectShellPrompt(PromptStyle style, string customName = "BoxaraHS") { }
+	public ShelliftAPIBuild SelectShellPrompt(PromptStyle style, string customName = "BoxaraHS") { }
 
 	// Select custom prompt generator logic
-	public static ShelliftAPIBuild SelectCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan) { }
+	public ShelliftAPIBuild SelectCustomPrompt(Func<string> promptGenerator, ConsoleColor color = ConsoleColor.Cyan) { }
 
 	// Set app metadata for display in prompts/headers
-	public static ShelliftAPIBuild WithAppName(string appName) { }
-	public static ShelliftAPIBuild WithAppVersion(string version) { }
+	public ShelliftAPIBuild WithAppName(string appName) { }
+	public ShelliftAPIBuild WithAppVersion(string version) { }
 
 	// Quick Header/Prompt overrides
-	public static ShelliftAPIBuild WithCustomHeader(string customHeader) { }
-	public static ShelliftAPIBuild WithExtraHeaderInfo(string extraInfo) { }
-	public static ShelliftAPIBuild WithCustomPromptText(string customText) { }
+	public ShelliftAPIBuild WithCustomHeader(string customHeader) { }
+	public ShelliftAPIBuild WithExtraHeaderInfo(string extraInfo) { }
+	public ShelliftAPIBuild WithCustomPromptText(string customText) { }
 
 	// Custom Input/Process Pipeline
-	public static ShelliftAPIBuild WithInputProvider(Func<string> inputProvider) { }
-	public static ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor) { }
-	public static ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor) { }
-	public static ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition) { }
+	public ShelliftAPIBuild WithInputProvider(Func<string> inputProvider) { }
+	public ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor) { }
+	public ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor) { }
+	public ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition) { }
 
 	// Command Lifecycle Hooks (Fluent)
-	public static ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction) { }
-	public static ShelliftAPIBuild WithCommandPostAction(Action<string, string[], bool> postAction) { }
+	public ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction) { }
+	public ShelliftAPIBuild WithCommandPostAction(Action<string, string[], bool> postAction) { }
 
 	// Global Shell Event Hooks (Fluent)
-	public static ShelliftAPIBuild OnShellStart(Action onStart) { }
-	public static ShelliftAPIBuild OnShellEnd(Action onEnd) { }
-	public static ShelliftAPIBuild OnShellError(Action<Exception> onError) { }
-	public static ShelliftAPIBuild OnCommandsLoaded(Action<List<ICommand>> onLoaded) { }
-	public static ShelliftAPIBuild OnCommandExecuted(Action<string> onExecuted) { }
-	public static ShelliftAPIBuild OnCommandFailed(Action<string> onFailed) { }
-	public static ShelliftAPIBuild OnPromptRendered(Action<string> onRendered) { }
+	public ShelliftAPIBuild OnShellStart(Action onStart) { }
+	public ShelliftAPIBuild OnShellEnd(Action onEnd) { }
+	public ShelliftAPIBuild OnShellError(Action<Exception> onError) { }
+	public ShelliftAPIBuild OnCommandsLoaded(Action<List<ICommand>> onLoaded) { }
+	public ShelliftAPIBuild OnCommandExecuted(Action<string> onExecuted) { }
+	public ShelliftAPIBuild OnCommandFailed(Action<string> onFailed) { }
+	public ShelliftAPIBuild OnPromptRendered(Action<string> onRendered) { }
 
 	// Title Hooks
-	public static ShelliftAPIBuild WithTitlePreAction(Action<string, string[], DateTime, string> preAction) { }
-	public static ShelliftAPIBuild WithTitlePostAction(Action<string, string[], DateTime, string> postAction) { }
+	public ShelliftAPIBuild WithTitlePreAction(Action<string, string[], DateTime, string> preAction) { }
+	public ShelliftAPIBuild WithTitlePostAction(Action<string, string[], DateTime, string> postAction) { }
 
 	// Build and run the shell (terminal blocking)
-	public static int Build() { }
-}
-```
-
-	// Build and open shell with result (non-blocking)
-	public static void OpenShellWithResult(string shellName) { }
+	public int Build() { }
 }
 ```
 
@@ -729,7 +752,7 @@ Allows loading additional commands at runtime without modifying the main assembl
 public static class ExternalCommandManager
 {
 	// Register external commands
-	public static void RegisterExternalCommands(List<ICommand> commands) { }
+	public static void RegisterExternalCommands(IEnumerable<ICommand> commands) { }
 
 	// Get all registered external commands
 	public static List<ICommand> GetExternalCommands() { }
@@ -773,55 +796,43 @@ ExternalCommandManager.RegisterExternalCommands(commands);
 
 ### `ConvertSymbolUniverse`
 
-Provides utilities for converting and handling special symbols and Unicode strings.
+Provides masked console input through its nested `ConvertTextToAsterisk` helper.
 
 ```csharp
-public static class ConvertSymbolUniverse
+public class ConvertSymbolUniverse
 {
-	// Converts symbols to safe strings for display
-	public static string ToSafeString(string input) { }
-
-	// Converts Unicode sequences to displayable format
-	public static string EscapeUnicode(string input) { }
+	public class ConvertTextToAsterisk
+	{
+		public static (int code, string result) ReadMaskedInput() { }
+	}
 }
 ```
 
 **Usage:**
 
 ```csharp
-var boxDrawing = "╔═══╗";
-var safe = ConvertSymbolUniverse.ToSafeString(boxDrawing);
-// Converts box-drawing characters to ASCII-safe alternatives if needed
+var (code, password) =
+	ConvertSymbolUniverse.ConvertTextToAsterisk.ReadMaskedInput();
 ```
 
 ---
 
 ### `CallDll`
 
-Manages library verification and dynamic DLL loading.
+Provides a basic library availability message. It does not load DLLs or expose a
+library version API.
 
 ```csharp
-public static class CallDll
+public class CallDll
 {
-	// Verify that the library is correctly loaded
-	public static bool VerifyLibraryLoaded() { }
-
-	// Get library version
-	public static string GetLibraryVersion() { }
+	public static string IsAvailivable() { }
 }
 ```
 
 **Usage:**
 
 ```csharp
-if (!CallDll.VerifyLibraryLoaded())
-{
-	Console.WriteLine("[X] BoxaraXLibrary.GenenicLib.LTS not properly loaded");
-	return;
-}
-
-var version = CallDll.GetLibraryVersion();
-Console.WriteLine($"[i] Library version: {version}");
+Console.WriteLine(CallDll.IsAvailivable());
 ```
 
 ---
@@ -947,23 +958,8 @@ Pre-built header styles for shell initialization.
 ```csharp
 public enum HeaderStyle
 {
-	Minimal,        // Single line header
-	Simple,         // Two-line header
-	Classic,        // Three-line header with borders
-	Modern,         // Contemporary style with Unicode
-	Compact,        // Minimal spacing
-	Detailed,       // Multiple information lines
-	Boxed,          // Full box border
-	Gradient,       // ASCII gradient effect
-	StarbustStyle,  // Star pattern border
-	Plus,           // Plus symbols border
-	Dollar,         // Dollar symbol border
-	Dash,           // Dash line borders
-	Equal,          // Equal sign border
-	Hash,           // Hash symbol border
-	Pipe,           // Pipe symbol border
-	Asterisk,       // Asterisk symbol border
-	Colon           // Colon symbol border
+	Classic, DoubleLine, StarBorder, Boxed, Minimal, Clean, Fancy, Banner,
+	AsciiArt, Cyber, Neon, Retro, Matrix, Minimalist, Modern, Elegant
 }
 ```
 
@@ -976,16 +972,8 @@ Pre-built prompt styles for command input.
 ```csharp
 public enum PromptStyle
 {
-	Simple,         // ">> "
-	FullInfo,       // "[user@host time] >> "
-	Classic,        // "$ "
-	Root,           // "# "
-	Arrow,          // "==> "
-	Chevron,        // ">> "
-	Question,       // "? "
-	UserAtHost,     // "user@host >> "
-	TimeFormat,     // "[HH:mm:ss] >> "
-	Custom          // User-defined (via SelectCustomPrompt)
+	Default, Linux, Powerline, Minimal, FullInfo, Dark, SimpleArrow,
+	Brackets, DoubleArrow, Custom
 }
 ```
 
@@ -993,12 +981,14 @@ public enum PromptStyle
 
 ### `TableFormatterTemplate`
 
-Formats data as structured ASCII tables.
+Builds and renders structured console tables through an instance-based fluent API.
 
 ```csharp
-public static class TableFormatterTemplate
+public class TableFormatterTemplate
 {
-	public static void PrintTable(List<Dictionary<string, string>> rows, List<string> headers) { }
+	public TableFormatterTemplate AddColumn(string header, ConsoleColor? color = null, int? fixedWidth = null) { }
+	public TableFormatterTemplate AddRow(params string[] values) { }
+	public void Render() { }
 }
 ```
 
@@ -1011,8 +1001,13 @@ Provides user confirmation prompts and interactive questions.
 ```csharp
 public static class QuestionShellTemplate
 {
-	public static bool AskYesNo(string question) { }
-	public static string AskInput(string prompt) { }
+	public static bool ShowQuestion(
+		string message,
+		string confirmText = "Y",
+		string cancelText = "N",
+		int timeoutSeconds = -1,
+		string timeoutMessage = "Operation timed out. Defaulting action.",
+		bool continueOnTimeout = false) { }
 }
 ```
 
@@ -1089,8 +1084,11 @@ ShellRegistry.OnCommandFailed += (cmd, ex) => LogManager.Log($"FAIL: {cmd.Name} 
 ### Command Processor Hooks
 
 The current public hook surface is configured through `ShelliftAPIBuild`.
-The direct static hook methods below are retained as historical v1.0.5 API
-documentation for older package versions.
+The direct static hook methods below are retained only as historical v1.0.5 API
+documentation. They are not available in the current `CommandProcessorTemplate`.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.5 — historical API</strong></summary>
 
 ```csharp
 CommandProcessorTemplate.WithCommandPreAction(cmd =>
@@ -1104,17 +1102,25 @@ CommandProcessorTemplate.WithCommandPostAction(cmd =>
 });
 ```
 
+</details>
+
 ### Title Hooks
 
 `CommandPromptTitleSEt` is an internal framework helper in current versions.
 Applications should use `WithTitlePreAction` and `WithTitlePostAction` on
-`ShelliftAPIBuild` instead. The following remains as historical v1.0.5 guidance.
+`ShelliftAPIBuild` instead. The following remains as historical v1.0.5 guidance
+and is not current application code.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.5 — historical API</strong></summary>
 
 ```csharp
 var titleSet = new CommandPromptTitleSEt();
 titleSet.WithTitlePreAction(() => Console.Clear());
 titleSet.WithTitlePostAction(() => Console.Beep());
 ```
+
+</details>
 
 ### Shell Loop Hooks
 
@@ -1145,9 +1151,9 @@ ShellLoopTemplate.Run(
 
 ### Logging Performance
 
-- `LogManager` queues logs asynchronously - no blocking on I/O
+- `LogManager` queues and renders logs while holding its synchronization lock
 - The console renderer is internal and synchronous - avoid direct console manipulation
-- Use `LogManager` for background/async logging instead
+- Use `LogManager` for background logging instead
 
 ### External Command Loading
 
@@ -1289,7 +1295,7 @@ public class MyAsyncCommand : AsyncCommand
 ### Custom Shell Implementation
 
 ```csharp
-public class AdvancedShell : IShellExecute
+public class AdvancedShell : IShell
 {
 	public string ShellName => "AdvancedShell";
 	public string Description => "Advanced shell with custom features";
@@ -1304,7 +1310,7 @@ public class AdvancedShell : IShellExecute
 		// Build shell with custom hooks
 		ShelliftAPIBuild.Create()
 			.SelectCommandShellLoad(ShellName)
-			.WithCommandPreAction(cmd => AuditLog(cmd))
+			.WithCommandPreAction((commandName, args) => AuditLog(commandName, args))
 			.Build();
 	}
 
@@ -1313,9 +1319,9 @@ public class AdvancedShell : IShellExecute
 		LogManager.Log("[i] Initializing advanced environment");
 	}
 
-	private void AuditLog(ICommand cmd)
+	private void AuditLog(string commandName, string[] args)
 	{
-		LogManager.Log($"[AUDIT] User executed: {cmd.Name} at {DateTime.Now}");
+		LogManager.Log($"[AUDIT] User executed: {commandName} at {DateTime.Now}");
 	}
 }
 ```
@@ -1353,10 +1359,7 @@ public class DatabaseCommand : ICommand
 	public void ParameterExecute(string[] args)
 	{
 		if (args.Length == 0)
-		{
-			ErrorShellTemplate.ShowCommandInvalidParameter(Name, "SQL query required");
-			return;
-		}
+			throw new ArgumentException("SQL query required", Name);
 
 		try
 		{
@@ -1366,10 +1369,10 @@ public class DatabaseCommand : ICommand
 			// Results display
 			LogManager.Log("[<] Query completed");
 		}
-		catch (Exception ex)
-		{
-			ErrorShellTemplate.ShowCommandInvalidParameter(Name, ex.Message);
-		}
+			catch (Exception ex)
+			{
+				throw new InvalidOperationException(ex.Message, ex);
+			}
 	}
 }
 ```
@@ -1377,7 +1380,7 @@ public class DatabaseCommand : ICommand
 ### Example 2: Multi-Level Shell Hierarchy
 
 ```csharp
-public class MainShell : IShellExecute
+public class MainShell : IShell
 {
 	public string ShellName => "MainShell";
 	public string Description => "Main system shell";
@@ -1393,7 +1396,7 @@ public class MainShell : IShellExecute
 	}
 }
 
-public class AdminShell : IShellExecute
+public class AdminShell : IShell
 {
 	public string ShellName => "AdminShell";
 	public string Description => "Admin-only shell";
@@ -1427,12 +1430,9 @@ public class SwitchShellCommand : ICommand
 	public void ParameterExecute(string[] args)
 	{
 		if (args.Length == 0)
-		{
-			ErrorShellTemplate.ShowCommandInvalidParameter(Name);
-			return;
-		}
+			throw new ArgumentException("A shell name is required", Name);
 
-		ShellRegistry.ExecuteShell(args[0]);
+		ShellRegistry.OpenShell(args[0]);
 	}
 }
 ```
@@ -1470,19 +1470,13 @@ public class ConfigCommand : ICommand
 		{
 			case "get":
 				if (args.Length < 2)
-				{
-					ErrorShellTemplate.ShowCommandInvalidParameter(Name, "Expected: config get <key>");
-					return;
-				}
+						throw new ArgumentException("Expected: config get <key>", Name);
 				DisplayConfig(args[1]);
 				break;
 
 			case "set":
 				if (args.Length < 3)
-				{
-					ErrorShellTemplate.ShowCommandInvalidParameter(Name, "Expected: config set <key> <value>");
-					return;
-				}
+						throw new ArgumentException("Expected: config set <key> <value>", Name);
 				SetConfig(args[1], args[2]);
 				break;
 
@@ -1491,8 +1485,7 @@ public class ConfigCommand : ICommand
 				break;
 
 			default:
-				ErrorShellTemplate.ShowCommandInvalidParameter(Name, $"Unknown action: {action}");
-				break;
+					throw new ArgumentException($"Unknown action: {action}", Name);
 		}
 	}
 
