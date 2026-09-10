@@ -86,6 +86,11 @@ dotnet build -c Release
 dotnet pack -c Release -o ./nupkgs
 ```
 
+The library targets multiple frameworks (`net7.0`, `net8.0`, `net9.0`, and
+`net10.0`). Build artifacts are generated under `bin/Release/netx.x/`, where
+`netx.x` represents the target framework being inspected; the documentation does
+not prescribe a single framework-specific output directory.
+
 > **Note:** `dotnet test` requires a test project to be present in the solution.
 
 ## 🛠️ Internal Testing Project

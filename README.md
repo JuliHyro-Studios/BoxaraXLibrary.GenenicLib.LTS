@@ -82,34 +82,10 @@ dotnet add package BoxaraXLibrary.GenenicLib.LTS
 
 ---
 
-## 🛠️ Build from Source
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS
-cd BoxaraXLibrary.GenenicLib.LTS
-```
-
-### 2. Build the project
-
-Using **.NET CLI**:
-
-```bash
-dotnet build -c Release
-```
-
-Or using **Visual Studio**:
-
-- Open `BoxaraXLibrary.GenenicLib.LTS.slnx`
-- Set build configuration to **Release**
-- Build the solution (Ctrl+Shift+B)
-
-### 3. Locate the DLL
-
-```
-BoxaraXLibrary.GenenicLib.LTS/bin/Release/net7.0/BoxaraXLibrary.GenenicLib.LTS.dll
-```
+> **Developer note:** Cloning the repository, building from source, packing the
+> NuGet package, and running the internal verification project are maintainer
+> workflows. See the complete [developer documentation](devopsdoc.md) for those
+> instructions.
 
 ---
 
