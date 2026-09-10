@@ -74,12 +74,6 @@
 dotnet add package BoxaraXLibrary.GenenicLib.LTS
 ```
 
-### Via Project Reference
-
-```xml
-<ProjectReference Include="..\BoxaraXLibrary.GenenicLib.LTS\BoxaraXLibrary.GenenicLib.LTS.csproj" />
-```
-
 ---
 
 > **Developer note:** Cloning the repository, building from source, packing the
