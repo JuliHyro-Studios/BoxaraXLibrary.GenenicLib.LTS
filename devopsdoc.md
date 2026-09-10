@@ -33,7 +33,7 @@
 10. [Command System](#command-system)
 11. [Error Handling Templates](#error-handling-templates)
 12. [External Command Loading](#external-command-loading)
-13. [Authentication System](#authentication-system)
+13. [Authentication System (removed in v1.0.7.3)](#authentication-system-removed-in-v1073)
 14. [Utility Helpers](#utility-helpers)
 15. [Logging System](#logging-system)
 16. [Real-Time Logging (LogManager)](#real-time-logging-logmanager)
@@ -207,6 +207,10 @@ The following components are marked as `internal` and are managed automatically 
 - `ErrorShellTemplate` — Handles the internal rendering of standardized error messages.
 - `LogConsole` — Internal console renderer used by LogManager and Shell Engine.
 - `codeint` — Defines core system return codes used for internal logic.
+
+> **Version compatibility:** `ErrorShellTemplate` became `internal` in v1.0.7.1 and
+> `LogConsole` became `internal` in v1.0.7.3. The historical public examples below
+> are retained in collapsed sections for applications using older package versions.
 
 ### Core Interfaces
 ...existing code...
@@ -404,9 +408,12 @@ public class MyShell : IShell
 
 ---
 
-### `IAuthenticator`
+## Authentication System (Removed in v1.0.7.3)
 
-The contract for authentication providers.
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.3</strong></summary>
+
+The authentication system was removed in v1.0.7.3. The following API is retained here only as historical documentation and is not available in the current framework:
 
 ```csharp
 public interface IAuthenticator
@@ -419,7 +426,7 @@ public interface IAuthenticator
 }
 ```
 
-**Usage:**
+`IAuthenticator`, `AuthHandle`, and `AuthMode` are no longer part of the library. Do not use the following historical example with current versions:
 
 ```csharp
 public class SimpleAuthenticator : IAuthenticator
@@ -436,7 +443,8 @@ public class SimpleAuthenticator : IAuthenticator
 	}
 }
 ```
-```
+
+</details>
 
 ---
 
@@ -559,7 +567,11 @@ ShelliftAPIBuild.Create()
 
 ### `ShellLoopTemplate`
 
-Manages the main command input loop with real-time prompt rendering.
+Manages the main command input loop with real-time prompt rendering. Since v1.0.6,
+the default loop reads individual keys with `Console.ReadKey` and polls
+`Console.KeyAvailable`; it no longer uses `Console.ReadLine` for normal shell input.
+The `inputProvider` parameter remains in the signature for compatibility with the
+v1.0.4 API, but the current loop does not invoke it.
 
 ```csharp
 public static class ShellLoopTemplate
@@ -621,6 +633,14 @@ public static class CommandProcessorTemplate
 }
 ```
 
+#### Duplicate command selection (v1.0.7.2)
+
+When multiple different command types match the same name or alias, the processor
+shows a selection menu containing each command's display name, assembly, type,
+aliases, and description. Instances of the same runtime type are deduplicated.
+The user can select a command by number or enter `exit`/`cancel` to stop without
+executing one.
+
 ---
 
 ### `ReflectionCommandShellTemplate`
@@ -660,9 +680,14 @@ ExternalCommandManager.RegisterExternalCommands(
 
 ## Error Handling Templates
 
-### `ErrorShellTemplate`
+### `ErrorShellTemplate` (framework-internal since v1.0.7.1)
 
-Provides standardized error messages and prompts with consistent formatting and colors.
+The framework uses this internal renderer for standardized command errors. Dev-Apps
+cannot call it from current versions. Throw an appropriate exception from a command
+and let `CommandProcessorTemplate` render the error response.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.1 — historical public API</strong></summary>
 
 ```csharp
 public static class ErrorShellTemplate
@@ -676,18 +701,20 @@ public static class ErrorShellTemplate
 }
 ```
 
+</details>
+
 **Features:**
 
 - **Command Not Found (with suggestions)** - Automatically suggests similar commands based on prefix matching
 - **Prefix Matching Display** - Shows available commands that start with the user's input
 - **Invalid Parameter Display** - Displays detailed error messages for incorrect parameters
 
-**Note:** `ErrorShellTemplate` is primarily used internally by `CommandProcessorTemplate`. Developers should focus on throwing appropriate exceptions within their commands to trigger these error displays.
+**Note:** `ErrorShellTemplate` is used internally by `CommandProcessorTemplate`. Developers should throw appropriate exceptions within their commands instead of calling this type directly.
 
 **Internal Implementation:**
 
 - `GetCurrentTime()` - Formats current time as `yyyy-MM-dd HH:mm:ss`
-- Uses `LogConsole` for colored output (Red for errors, Yellow for suggestions)
+- Uses the framework-internal renderer for colored output (Red for errors, Yellow for suggestions)
 - Automatically counts and displays total available commands
 
 ---
@@ -801,9 +828,14 @@ Console.WriteLine($"[i] Library version: {version}");
 
 ## Logging System
 
-### `LogConsole`
+### `LogConsole` (framework-internal since v1.0.7.3)
 
-Provides colored console logging with timestamp support.
+`LogConsole` is the framework's internal console renderer and is not accessible to
+Dev-Apps in current versions. Use `LogManager.Log(...)` for messages and
+`LogManager.Clear(...)` for screen clearing.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.3 — historical public API</strong></summary>
 
 ```csharp
 public static class LogConsole
@@ -815,13 +847,15 @@ public static class LogConsole
 }
 ```
 
-**Example:**
+**Historical usage:**
 
 ```csharp
 LogConsole.ForegroundColor = ConsoleColor.Green;
 LogConsole.WriteLine("[✓] Operation successful", DateTime.Now.ToString("HH:mm:ss"));
 LogConsole.ResetColor();
 ```
+
+</details>
 
 ---
 
@@ -833,9 +867,8 @@ Real-time logging with non-blocking input capabilities.
 public static class LogManager
 {
 	public static void Log(string message) { }
-	public static void LogError(string message) { }
-	public static void LogWarning(string message) { }
-	public static void LogInfo(string message) { }
+	public static void Clear(bool isShowShell = false) { }
+	public static void FlushLogs(List<PromptSegment> segments) { }
 }
 ```
 
@@ -997,34 +1030,47 @@ ShelliftAPIBuild.Create()
 	.SelectShellPrompt(PromptStyle.FullInfo, "admin")
 	.WithAppName("EnterpriseApp")
 	.WithAppVersion("3.2.1")
-	.WithCommandPreAction(cmd => LogManager.Log($"Executing: {cmd.Name}"))
-	.WithCommandPostAction(cmd => LogManager.Log($"Completed: {cmd.Name}"))
-	.WithTitlePreAction(() => Console.Clear())
-	.WithTitlePostAction(() => Console.Beep())
+	.WithCommandPreAction((command, args) => LogManager.Log($"Executing: {command}"))
+	.WithCommandPostAction((command, args, success) => LogManager.Log($"Completed: {command}"))
+	.WithTitlePreAction((title, reasons, timestamp, fileName) => Console.Clear())
+	.WithTitlePostAction((title, reasons, timestamp, fileName) => Console.Beep())
+	// Retained from v1.0.4; current input uses the v1.0.6 key-reading loop.
 	.WithInputProvider(() => Console.ReadLine() ?? "")
 	.WithPreProcessor(input => LogManager.Log($"Input: {input}"))
-	.WithPostProcessor(input => { })
-	.WithExitCondition(input => input?.ToLower() == "exit")
+	.WithPostProcessor((input, success) => { })
+	.WithExitCondition(() => false)
 	.Build();
 ```
 
 ---
 
-## Shell Events
+## Shell Events (v1.0.6)
 
-Shell execution can trigger 7 different events:
+Shell lifecycle callbacks are configured on `ShelliftAPIBuild`; they are not
+static events on `ShellRegistry`:
 
 ```csharp
-public delegate void OnShellStartDelegate();
-public delegate void OnShellEndDelegate();
-public delegate void OnShellErrorDelegate(Exception ex);
-public delegate void OnCommandsLoadedDelegate(List<ICommand> commands);
-public delegate void OnCommandExecutedDelegate(ICommand command);
-public delegate void OnCommandFailedDelegate(ICommand command, Exception ex);
-public delegate void OnPromptRenderedDelegate();
+ShelliftAPIBuild.Create()
+	.OnShellStart(() => LogManager.Log("[i] Shell started"))
+	.OnShellEnd(() => LogManager.Log("[i] Shell ended"))
+	.OnCommandsLoaded(commands => LogManager.Log($"Loaded {commands.Count} commands"))
+	.OnCommandExecuted(name => LogManager.Log($"OK: {name}"))
+	.OnCommandFailed(name => LogManager.Log($"FAIL: {name}"))
+	.OnPromptRendered(prompt => LogManager.Log($"Prompt: {prompt}"))
+	.OnShellError(error => LogManager.Log($"FAIL: {error.Message}"));
 ```
 
-**Usage:**
+The v1.0.6 event set includes `OnShellStart`, `OnShellEnd`, `OnShellError`,
+`OnCommandsLoaded`, `OnCommandExecuted`, `OnCommandFailed`, and
+`OnPromptRendered`. The callback signatures shown above match the current
+builder API.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.6 — legacy event notation</strong></summary>
+
+Older documentation described these callbacks as events on `ShellRegistry`.
+That notation is retained for older applications, but current versions configure
+the callbacks through `ShelliftAPIBuild` as shown above.
 
 ```csharp
 ShellRegistry.OnShellStart += () => Console.WriteLine("[i] Shell started");
@@ -1034,11 +1080,17 @@ ShellRegistry.OnCommandExecuted += cmd => LogManager.Log($"OK: {cmd.Name}");
 ShellRegistry.OnCommandFailed += (cmd, ex) => LogManager.Log($"FAIL: {cmd.Name} - {ex.Message}");
 ```
 
+</details>
+
 ---
 
 ## Delegate Hooks
 
 ### Command Processor Hooks
+
+The current public hook surface is configured through `ShelliftAPIBuild`.
+The direct static hook methods below are retained as historical v1.0.5 API
+documentation for older package versions.
 
 ```csharp
 CommandProcessorTemplate.WithCommandPreAction(cmd =>
@@ -1054,6 +1106,10 @@ CommandProcessorTemplate.WithCommandPostAction(cmd =>
 
 ### Title Hooks
 
+`CommandPromptTitleSEt` is an internal framework helper in current versions.
+Applications should use `WithTitlePreAction` and `WithTitlePostAction` on
+`ShelliftAPIBuild` instead. The following remains as historical v1.0.5 guidance.
+
 ```csharp
 var titleSet = new CommandPromptTitleSEt();
 titleSet.WithTitlePreAction(() => Console.Clear());
@@ -1061,6 +1117,9 @@ titleSet.WithTitlePostAction(() => Console.Beep());
 ```
 
 ### Shell Loop Hooks
+
+The `inputProvider` callback is part of the v1.0.4 compatibility surface. The
+default implementation introduced in v1.0.6 reads keyboard input directly.
 
 ```csharp
 ShellLoopTemplate.Run(
@@ -1087,7 +1146,7 @@ ShellLoopTemplate.Run(
 ### Logging Performance
 
 - `LogManager` queues logs asynchronously - no blocking on I/O
-- `LogConsole` is synchronous - avoid frequent calls in tight loops
+- The console renderer is internal and synchronous - avoid direct console manipulation
 - Use `LogManager` for background/async logging instead
 
 ### External Command Loading
@@ -1115,8 +1174,10 @@ finally
 
 ### Shell Loop Performance
 
-- The main shell loop uses `Console.ReadLine()` which blocks on input
-- For non-blocking input scenarios, implement custom `WithInputProvider`
+- Since v1.0.6, the main shell loop uses `Console.KeyAvailable` and `Console.ReadKey`
+	instead of blocking on `Console.ReadLine()`
+- `WithInputProvider` is retained from v1.0.4 for API compatibility, but is not
+	consumed by the current loop implementation
 - Real-time logging via `LogManager` doesn't impact shell responsiveness
 
 ---
@@ -1130,7 +1191,7 @@ finally
 | `ShellRegistry` | ✓ | Uses internal locks for concurrent access |
 | `LogManager` | ✓ | Queue-based async logging |
 | `ExternalCommandManager` | ✓ | Synchronized command registration |
-| `LogConsole` | ⚠️ | Console output not thread-safe (use LogManager instead) |
+| `LogConsole` | Internal | Framework renderer; use `LogManager` instead |
 | `ICommand` implementations | ✗ | User-defined; not thread-safe by default |
 | `CommandProcessorTemplate` | ✓ | Event firing is synchronized |
 
@@ -1221,30 +1282,6 @@ public class MyAsyncCommand : AsyncCommand
 	{
 		await Task.Delay(1000);
 		Console.WriteLine("Async work complete");
-	}
-}
-```
-
-### Extending `IAuthenticator`
-
-Add custom authentication methods:
-
-```csharp
-public class LdapAuthenticator : IAuthenticator
-{
-	public string AuthenticatorName => "LDAP";
-	public AuthMode[] SupportedModes => new[] { AuthMode.Remote };
-
-	public bool Authenticate(string username, string password, AuthMode mode)
-	{
-		// LDAP authentication logic
-		return ValidateLdapCredentials(username, password);
-	}
-
-	private bool ValidateLdapCredentials(string username, string password)
-	{
-		// Implementation
-		return true;
 	}
 }
 ```
@@ -1489,6 +1526,11 @@ public class ConfigCommand : ICommand
 - Provide clear error messages via `ErrorShellTemplate`
 - Support both `Execute()` (no-args) and `ParameterExecute()` (with args)
 
+> **v1.0.7.1 compatibility note:** Direct calls to `ErrorShellTemplate` in the
+> historical examples below work only with versions before it became `internal`.
+> Current commands should throw `ArgumentException` or another appropriate
+> exception and let the framework render the response.
+
 ### 2. Error Handling
 
 The framework's `CommandProcessorTemplate` automatically catches exceptions thrown within commands and renders them via `ErrorShellTemplate`. Dev-Apps should throw exceptions instead of calling error templates directly.
@@ -1508,22 +1550,16 @@ public void ParameterExecute(string[] args)
 ### 3. Logging
 
 - Use `LogManager` for background operations
-- Use `LogConsole` for immediate user feedback
+- Use `LogManager.Log()` for immediate user feedback
 - Always include timestamps for audit trails
 
-### 4. Authentication
-
-- Validate credentials before accessing sensitive features
-- Support multiple authentication modes when possible
-- Log authentication attempts
-
-### 5. Performance
+### 4. Performance
 
 - Cache frequently accessed data
 - Use `ExternalCommandManager` to avoid loading all plugins upfront
 - Implement proper cleanup for `AssemblyLoadContext` instances
 
-### 6. ShelliftAPIBuild Configuration
+### 5. ShelliftAPIBuild Configuration
 
 **Important:** `ShelliftAPIBuild.Build()` now validates all required configuration before launching the shell. Ensure:
 
@@ -1584,7 +1620,7 @@ ShelliftAPIBuild.Create()
 
 ### Q: How do I extend the framework?
 
-**A:** Implement custom versions of `ICommand`, `IShell`, or `IAuthenticator`, or create wrapper classes like `AsyncCommand` base class.
+**A:** Implement custom versions of `ICommand` or `IShell`, or create wrapper classes like `AsyncCommand` base class.
 
 ### Q: Can I load commands from external assemblies?
 
