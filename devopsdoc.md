@@ -834,7 +834,10 @@ var (code, password) =
 
 ---
 
-### `CallDll`
+### `CallDll` (Removed in v1.0.7.5)
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.5 — historical public API</strong></summary>
 
 Provides a basic library availability message. It does not load DLLs or expose a
 library version API.
@@ -851,6 +854,8 @@ public class CallDll
 ```csharp
 Console.WriteLine(CallDll.IsAvailivable());
 ```
+
+</details>
 
 ---
 
@@ -1693,6 +1698,7 @@ ShelliftAPIBuild.Create()
 - **Changed**: Updated `ShellLoopTemplate` documentation to explicitly state that `inputProvider` is now completely disconnected from execution logic since v1.0.6.
 - **Added**: Integrated critical safety warnings for `TableFormatterTemplate.RenderToString()` regarding `Console.Out` redirection.
 - **Changed**: Refined `README.md` by removing "Via Project Reference" installation to align with end-user focus and maintainer workflow.
+- **Removed**: Removed the useless `CallDll` class and its `IsAvailivable()` method.
 
 ### v1.0.7.4 — Documentation Alignment & NuGet Readme Cleanup
 
