@@ -550,11 +550,15 @@ public sealed class ShelliftAPIBuild
 	public ShelliftAPIBuild WithExtraHeaderInfo(string extraInfo) { }
 	public ShelliftAPIBuild WithCustomPromptText(string customText) { }
 
+	// Added in v1.0.3: custom header/prompt support
+
 	// Custom Input/Process Pipeline
 	public ShelliftAPIBuild WithInputProvider(Func<string> inputProvider) { }
 	public ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor) { }
 	public ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor) { }
 	public ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition) { }
+	// Added in v1.0.4; WithInputProvider is retained for compatibility but is
+	// not invoked by the current key-based shell loop.
 
 	// Command Lifecycle Hooks (Fluent)
 	public ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction) { }
@@ -577,6 +581,13 @@ public sealed class ShelliftAPIBuild
 	public int Build() { }
 }
 ```
+
+**Version notes:** `SelectCustomHeader`, `SelectCustomPrompt`, and
+`WithExtraHeaderInfo` were introduced in v1.0.3. The input and processor
+callbacks were introduced in v1.0.4. The command and title hook methods were
+introduced in v1.0.5. Existing applications may continue using the original
+signatures documented in those releases; the current builder methods are the
+supported form for new applications.
 
 **Example:**
 
@@ -896,6 +907,11 @@ public static class LogManager
 
 `LogManager` provides non-blocking logging that doesn't interfere with user input:
 
+**Introduced in v1.0.6:** `LogManager` provides the supported logging path for
+messages emitted while the interactive shell is active. The normal shell loop
+also changed to key-based input in that release; older `Console.ReadLine()`
+behavior is preserved in the version history below for compatibility reference.
+
 ```csharp
 // Clear the console screen safely
 LogManager.Clear();
@@ -1131,6 +1147,16 @@ titleSet.WithTitlePostAction(() => Console.Beep());
 
 The `inputProvider` callback is part of the v1.0.4 compatibility surface. The
 default implementation introduced in v1.0.6 reads keyboard input directly.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.4 — original shell-loop extension API</strong></summary>
+
+The following callbacks were introduced in v1.0.4 and are preserved here for
+applications using that API. In current versions, normal shell input is handled
+by the v1.0.6 key-reading loop; `inputProvider` remains in the signature but is
+not invoked by the current implementation.
+
+</details>
 
 ```csharp
 ShellLoopTemplate.Run(
@@ -1646,6 +1672,7 @@ ShelliftAPIBuild.Create()
 - **NuGet Links**: Replaced relative README links to `devopsdoc.md` and `AuthorInfo.md` with HTTPS GitHub URLs so they resolve correctly when the README is displayed from NuGet.
 - **Multi-Target Documentation**: Documented build output using the generic `bin/Release/netx.x/` path instead of implying a single `net7.0` output.
 - **Version History**: Added historical `DESCRIBED BY` sections for removed Authentication APIs, internalized framework components, legacy shell events, and obsolete delegate hooks.
+- **Release Traceability**: Added version markers and compatibility notes for the v1.0.3 custom UI APIs, v1.0.4 shell-loop callbacks, v1.0.5 fluent hooks, and v1.0.6 real-time logging/input behavior.
 - **API Accuracy**: Synchronized documented declarations and examples with the current APIs for `ShelliftAPIBuild`, `HeaderStyle`, `PromptStyle`, `TableFormatterTemplate`, `QuestionShellTemplate`, `ConvertSymbolUniverse`, `CallDll`, and `ExternalCommandManager`.
 - **Error Handling**: Updated current examples to throw exceptions instead of calling the internal `ErrorShellTemplate` directly.
 - **Plugin Documentation**: Clarified that application code owns external assembly loading and `AssemblyLoadContext` lifetime; `ExternalCommandManager` only registers command instances.
