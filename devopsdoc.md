@@ -1692,6 +1692,7 @@ ShelliftAPIBuild.Create()
 - **Fixed**: Corrected API method name `GetCommandsByShell` to `GetCommandsForShell` for accuracy.
 - **Changed**: Updated `ShellLoopTemplate` documentation to explicitly state that `inputProvider` is now completely disconnected from execution logic since v1.0.6.
 - **Added**: Integrated critical safety warnings for `TableFormatterTemplate.RenderToString()` regarding `Console.Out` redirection.
+- **Changed**: Refined `README.md` by removing "Via Project Reference" installation to align with end-user focus and maintainer workflow.
 
 ### v1.0.7.4 — Documentation Alignment & NuGet Readme Cleanup
 
