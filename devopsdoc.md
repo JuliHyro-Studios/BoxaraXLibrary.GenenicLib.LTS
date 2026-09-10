@@ -1592,35 +1592,43 @@ ShelliftAPIBuild.Create()
 
 ### Q: Why does `ShelliftAPIBuild.Create()` throw an exception?
 
-**A:** It must be called from a class implementing `IShell`. This ensures the shell is properly registered.
+**A:** `Create()` checks its immediate caller using a stack trace and requires that caller to be an `IShell` implementation. This is a calling convention enforced by the builder; it does not itself register or validate a shell. For direct launching, use `ShelliftAPIBuild.OpenShell(...)` or `ShelliftAPIBuild.OpenShellWithResult(...)`.
 
 ### Q: How do I log while the shell is running?
 
-**A:** Use `LogManager.Log()` for real-time logging. Do not use `Console.WriteLine()` directly.
+**A:** Use `LogManager.Log()` so output is synchronized with the active prompt. Direct `Console.WriteLine()` calls can interfere with interactive input rendering.
 
 ### Q: How do I add external commands?
 
-**A:** Use `ExternalCommandManager.RegisterExternalCommands()` to inject commands at runtime.
+**A:** Create `ICommand` instances and pass them to `ExternalCommandManager.RegisterExternalCommands()`. This registers command instances at runtime; it is not a complete plugin lifecycle or dependency-management system.
 
 ### Q: Why can't I use both `SelectShellPrompt` and `SelectCustomPrompt`?
 
-**A:** They are mutually exclusive — choose either built-in or custom prompt.
+**A:** A builder should use one prompt source only: either a built-in `PromptStyle` through `SelectShellPrompt(...)` or a generator through `SelectCustomPrompt(...)`. Configure the choice once before calling `Build()`.
 
 ### Q: Why can't I use both `SelectShellHeaderTemplate` and `SelectCustomHeader`?
 
-**A:** They are mutually exclusive — choose either built-in or custom header.
+**A:** A builder should use one header source only: either a built-in `HeaderStyle` through `SelectShellHeaderTemplate(...)` or a renderer through `SelectCustomHeader(...)`. Configure the choice once before calling `Build()`.
 
 ### Q: Is the framework thread-safe?
 
-**A:** Core components (`ExternalCommandManager`, `ShellRegistry`, `LogManager`) are thread-safe. Commands are not thread-safe by default.
+**A:** There is no blanket thread-safety guarantee for every component. `LogManager` synchronizes prompt/log rendering, and `ShellRegistry` protects initialization. `ICommand` implementations and mutable collections returned by registry APIs remain the application's responsibility.
 
 ### Q: What happens if a command throws an exception?
 
-**A:** The exception is caught, logged, and the shell continues running. Use `OnShellError` to handle errors globally.
+**A:** `CommandProcessorTemplate` catches command exceptions, renders an error, and normally keeps the shell loop running. `OnShellError` is the shell/build-level error callback; it is not a replacement for command-level error handling.
+
+### Q: Why does the shell ask me to select a command?
+
+**A:** Since v1.0.7.2, if different command types share the same name or alias, the framework displays their metadata and asks you to select one. Enter a number to execute it, or `exit`/`cancel` to stop without execution. Duplicate instances of the same runtime type are deduplicated.
+
+### Q: Why does `WithInputProvider(...)` not replace keyboard input?
+
+**A:** `WithInputProvider(...)` was introduced in v1.0.4 and remains in the compatibility surface. Since v1.0.6, the current shell loop reads keys through `Console.KeyAvailable` and `Console.ReadKey`; the current implementation does not invoke the provider callback.
 
 ### Q: How do I extend the framework?
 
-**A:** Implement custom versions of `ICommand` or `IShell`, or create wrapper classes like `AsyncCommand` base class.
+**A:** Implement `ICommand` for commands or `IShell` for shell entry points. You can also build wrappers such as an `AsyncCommand` base class. The authentication APIs were removed in v1.0.7.3.
 
 ### Q: Can I load commands from external assemblies?
 
