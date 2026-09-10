@@ -1640,6 +1640,17 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
+### v1.0.7.4 — Documentation Alignment & NuGet Readme Cleanup
+
+- **README Scope**: Kept `README.md` focused on NuGet installation and basic usage; moved source-build and maintainer workflow guidance to `devopsdoc.md`.
+- **NuGet Links**: Replaced relative README links to `devopsdoc.md` and `AuthorInfo.md` with HTTPS GitHub URLs so they resolve correctly when the README is displayed from NuGet.
+- **Multi-Target Documentation**: Documented build output using the generic `bin/Release/netx.x/` path instead of implying a single `net7.0` output.
+- **Version History**: Added historical `DESCRIBED BY` sections for removed Authentication APIs, internalized framework components, legacy shell events, and obsolete delegate hooks.
+- **API Accuracy**: Synchronized documented declarations and examples with the current APIs for `ShelliftAPIBuild`, `HeaderStyle`, `PromptStyle`, `TableFormatterTemplate`, `QuestionShellTemplate`, `ConvertSymbolUniverse`, `CallDll`, and `ExternalCommandManager`.
+- **Error Handling**: Updated current examples to throw exceptions instead of calling the internal `ErrorShellTemplate` directly.
+- **Plugin Documentation**: Clarified that application code owns external assembly loading and `AssemblyLoadContext` lifetime; `ExternalCommandManager` only registers command instances.
+- **Logging Documentation**: Corrected the description of `LogManager` synchronization and distinguished current `LogManager` usage from historical `LogConsole` access.
+
 ### v1.0.7.3 — Internal Tooling & Cleanup
 
 - **Developer Tooling**: Added `pack.py` as a cross-platform Python equivalent to `pack.bat`.
