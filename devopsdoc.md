@@ -1691,9 +1691,11 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
-### v1.0.7.6 — Documentation Refinement
+### v1.0.7.6 — README Architecture Audit & Documentation Accuracy
 
 - **Changed**: Refined `README.md` by removing detailed Core Interface definitions to ensure a concise, basic start for end-users; all detailed API specs remain in `devopsdoc.md`.
+- **Changed**: Re-structured the "Key Features" section in `README.md` into "Current Capabilities" and "Evolution & Deprecations" to accurately reflect the library's history and current state (Audit-based).
+- **Fixed**: Added precise version markers for internalized APIs (`ErrorShellTemplate` v1.0.7.1, `LogConsole` v1.0.7.3) and the Key-based input loop (v1.0.6) in `README.md` for better traceability.
 
 ### v1.0.7.5 — TableFormatterTemplate Usage Documentation & API Refinement
 

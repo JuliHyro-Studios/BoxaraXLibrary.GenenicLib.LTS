@@ -39,16 +39,18 @@
 
 ### ✨ Key Features
 
-- ⚙️ **Shell Engine** — Build and run interactive shells with customizable prompts and headers
-- 🎯 **Command System** — Register, discover, and execute commands via reflection or manual registration
-- 🔌 **External Command Support** — Load commands from external sources at runtime
-- 🎨 **Fluent API** — Build shells with a clean, expressive fluent interface
-- 🌈 **Rich Console UI** — 16+ header styles, 10+ prompt styles, table formatter, colored logs
-- 📝 **Real-Time Logging** — Log messages while user is typing (via `LogManager`)
--  **Event System** — Subscribe to shell lifecycle events (start, end, error, command execution)
-- 📦 **Cross-Platform** — Works on Windows, Linux, and macOS via .NET
-- ⚡ **Lightweight** — Zero external dependencies, minimal footprint
-- 🧩 **Extensible** — Easy to extend with custom commands, shells, and console experiences
+#### 🚀 Current Capabilities (Latest)
+- ⚙️ **Advanced Shell Engine** — Build interactive shells with a clean **Fluent API**, reflection-based command discovery, and a high-performance **Key-based input loop** (since v1.0.6).
+- 🛠️ **Smart Command Handling** — Features an intelligent **Duplicate Command Selection** system (v1.0.7.2) to resolve overlapping aliases and support for **External Command Loading** at runtime.
+- 🌈 **Rich Console UI/UX** — Extensive visual customization with **16+ professional header styles**, **10+ prompt styles**, a structured **Table Formatter**, and interactive **Question/Confirmation** prompts.
+- 📝 **Enterprise Logging** — Thread-safe, real-time logging via `LogManager` that synchronizes output with the active prompt without interrupting user input.
+- 📦 **Modern Infrastructure** — Zero external dependencies, full cross-platform support (.NET 7/8/9/10), and a strictly **thread-safe architecture**.
+
+#### 📜 Evolution & Deprecations
+- **Authentication**: The legacy Auth system (`IAuthenticator`) was removed in v1.0.7.3 to simplify the core.
+- **Internalized APIs**: `ErrorShellTemplate` (v1.0.7.1) and `LogConsole` (v1.0.7.3) are now internal framework components to ensure stability.
+- **Refined Loop**: Transitioned from `Console.ReadLine` to a more responsive `Console.ReadKey` polling mechanism in v1.0.6.
+- **Lean-up**: Removed redundant helpers like `CallDll` (v1.0.7.5) to keep the library lightweight.
 
 ### 📦 Use Cases
 
