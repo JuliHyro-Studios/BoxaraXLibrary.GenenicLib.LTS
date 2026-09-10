@@ -306,7 +306,6 @@ BoxaraXLibrary.GenenicLib.LTS/
 │       ├── ShellLoopTemplate.cs
 │       ├── ShellRegistry.cs
 │       └── TableFormatterTemplate.cs
-├── CallDll.cs # Library availability helper
 ├── codeint.cs # Return codes (internal)
 ├── LibraryTestestProjects/ # Internal developer verification projects
 │   └── ConsoleApp/ # Manual shell test application
@@ -318,6 +317,19 @@ BoxaraXLibrary.GenenicLib.LTS/
 > **Current structure:** The tree above describes v1.0.7.3 and later. The
 > `LibraryTestestProjects` directory belongs to the repository's developer
 > tooling and is excluded from the library assembly compilation and NuGet API.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.5 — historical availability helper</strong></summary>
+
+Before v1.0.7.5, the repository included a simple availability helper:
+
+```
+CallDll.cs # Library availability helper
+```
+
+This file was removed in v1.0.7.5 to lean up the library. This historical reference is retained for maintainers working with package versions prior to v1.0.7.5.
+
+</details>
 
 <details>
 <summary><strong>DESCRIBED BY v1.0.7.2 AND EARLIER — historical authentication structure</strong></summary>
