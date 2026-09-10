@@ -241,7 +241,7 @@ The following components are marked as `internal` and are managed automatically 
 
 ### UI
 
-- `TableFormatterTemplate` — Structured table output
+- FormatterTemplate` — Structured table output
 - `QuestionShellTemplate` — User interaction and confirmation prompts
 - `HeaderStyle` / `PromptStyle` — Built-in UI styles
 
@@ -1013,6 +1013,22 @@ public class TableFormatterTemplate
 }
 ```
 
+**Usage:**
+
+```csharp
+var table = new TableFormatterTemplate()
+	.AddColumn("Name", ConsoleColor.Cyan)
+	.AddColumn("Status", ConsoleColor.Green)
+	.AddRow("Boxara CLI", "Ready")
+	.AddRow("Worker", "Running");
+
+table.Render();
+```
+
+Each row must provide exactly one value for every declared column. A column can
+optionally define a fixed width; otherwise its width expands to fit the longest
+header or row value. The formatter supports up to 20 columns.
+
 ---
 
 ### `QuestionShellTemplate`
@@ -1665,6 +1681,10 @@ ShelliftAPIBuild.Create()
 ---
 
 ## Changelog
+
+### v1.0.7.5 — TableFormatterTemplate Usage Documentation
+
+- **Added**: Added complete `TableFormatterTemplate` usage documentation, including the `AddColumn()` → `AddRow()` → `Render()` flow, optional column colors, `fixedWidth` configuration, row value requirements, and the maximum 20-column limit.
 
 ### v1.0.7.4 — Documentation Alignment & NuGet Readme Cleanup
 
