@@ -610,7 +610,8 @@ Manages the main command input loop with real-time prompt rendering. Since v1.0.
 the default loop reads individual keys with `Console.ReadKey` and polls
 `Console.KeyAvailable`; it no longer uses `Console.ReadLine` for normal shell input.
 The `inputProvider` parameter remains in the signature for compatibility with the
-v1.0.4 API, but the current loop does not invoke it.
+v1.0.4 API, but the current loop does not invoke it. Since v1.0.6, this provider
+is completely disconnected from the execution logic in favor of the key-based loop.
 
 ```csharp
 public static class ShellLoopTemplate
@@ -693,7 +694,7 @@ public static class ReflectionCommandShellTemplate
 	public static List<ICommand> GetCommandAllInterface() { }
 
 	// Get commands filtered by shell
-	public static List<ICommand> GetCommandsByShell(string shellName) { }
+	public static List<ICommand> GetCommandsForShell(string shellName) { }
 }
 ```
 
@@ -1010,6 +1011,7 @@ public class TableFormatterTemplate
 	public TableFormatterTemplate AddColumn(string header, ConsoleColor? color = null, int? fixedWidth = null) { }
 	public TableFormatterTemplate AddRow(params string[] values) { }
 	public void Render() { }
+	public string RenderToString() { }
 }
 ```
 
@@ -1028,6 +1030,8 @@ table.Render();
 Each row must provide exactly one value for every declared column. A column can
 optionally define a fixed width; otherwise its width expands to fit the longest
 header or row value. The formatter supports up to 20 columns.
+
+> **⚠️ Critical Warning:** `RenderToString` temporarily replaces global `Console.Out` without a `finally` block. If an exception occurs during rendering, `Console.Out` may remain redirected, causing subsequent output to be lost or misdirected. Use with caution in unstable environments.
 
 ---
 
