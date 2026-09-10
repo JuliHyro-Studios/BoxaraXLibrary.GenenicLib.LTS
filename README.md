@@ -84,7 +84,7 @@ dotnet add package BoxaraXLibrary.GenenicLib.LTS
 
 > **Developer note:** Cloning the repository, building from source, packing the
 > NuGet package, and running the internal verification project are maintainer
-> workflows. See the complete [developer documentation](devopsdoc.md) for those
+> workflows. See the complete [developer documentation](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/blob/master/devopsdoc.md) for those
 > instructions.
 
 ---
@@ -241,7 +241,7 @@ ShelliftAPIBuild.Create()
 
 This README covers the basics to get you started. For **comprehensive documentation**, advanced patterns, and detailed API reference, see:
 
-### 📚 **[devopsdoc.md](devopsdoc.md)** — Complete Developer Guide
+### 📚 **[devopsdoc.md](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/blob/master/devopsdoc.md)** — Complete Developer Guide
 
 - **Core Concepts** —  Detailed interface documentation
 - **Shell Engine** — ShelliftAPIBuild, ShellRegistry, events
@@ -266,8 +266,8 @@ This README covers the basics to get you started. For **comprehensive documentat
 |----------|---------|
 | [GitHub Repository](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS) | Source code & Issues |
 | [NuGet Package](https://www.nuget.org/packages/BoxaraXLibrary.GenenicLib.LTS) | Package management |
-| [devopsdoc.md](devopsdoc.md) | Full API reference & patterns |
-| [AuthorInfo.md](AuthorInfo.md) | Author & contribution info |
+| [devopsdoc.md](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/blob/master/devopsdoc.md) | Full API reference & patterns |
+| [AuthorInfo.md](https://github.com/JuliHyro-Studios/BoxaraXLibrary.GenenicLib.LTS/blob/master/AuthorInfo.md) | Author & contribution info |
 
 ---
 
