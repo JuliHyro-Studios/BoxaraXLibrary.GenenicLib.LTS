@@ -1691,6 +1691,10 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
+### v1.0.7.6 — Documentation Refinement
+
+- **Changed**: Refined `README.md` by removing detailed Core Interface definitions to ensure a concise, basic start for end-users; all detailed API specs remain in `devopsdoc.md`.
+
 ### v1.0.7.5 — TableFormatterTemplate Usage Documentation & API Refinement
 
 - **Added**: Added complete `TableFormatterTemplate` usage documentation, including the `AddColumn()` → `AddRow()` → `Render()` flow, optional column colors, `fixedWidth` configuration, row value requirements, and the maximum 20-column limit.

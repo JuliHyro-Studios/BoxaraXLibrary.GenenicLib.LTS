@@ -146,39 +146,7 @@ ShelliftAPIBuild.OpenShellWithResult("MyShell");
 
 ---
 
-## 🎯 Core Interfaces
-
-### `IShell`
-
-Defines a shell contract.
-
-| Property | Description |
-|----------|-------------|
-| `ShellName` | Unique identifier |
-| `DisplayName` | Human-readable shell name |
-| `Description` | Brief description |
-| `Category` | Grouping category |
-| `ShellVersion` | Version string |
-
-### `ICommand`
-
-Defines a command contract.
-
-| Property | Description |
-|----------|-------------|
-| `Name` | Command name (used in CLI) |
-| `DisplayName` | User-friendly name |
-| `Aliases` | Alternative names |
-| `Category` | Grouping category |
-| `Shell` | Target shell name |
-| `Description` | Brief description |
-| `CommandVersion` | Version string |
-| `Parameter` | Supported parameters |
-
-
----
-
-## 🎨 UI Customization
+##  UI Customization
 
 ### Built-in Styles
 
