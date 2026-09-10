@@ -1686,9 +1686,12 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
-### v1.0.7.5 — TableFormatterTemplate Usage Documentation
+### v1.0.7.5 — TableFormatterTemplate Usage Documentation & API Refinement
 
 - **Added**: Added complete `TableFormatterTemplate` usage documentation, including the `AddColumn()` → `AddRow()` → `Render()` flow, optional column colors, `fixedWidth` configuration, row value requirements, and the maximum 20-column limit.
+- **Fixed**: Corrected API method name `GetCommandsByShell` to `GetCommandsForShell` for accuracy.
+- **Changed**: Updated `ShellLoopTemplate` documentation to explicitly state that `inputProvider` is now completely disconnected from execution logic since v1.0.6.
+- **Added**: Integrated critical safety warnings for `TableFormatterTemplate.RenderToString()` regarding `Console.Out` redirection.
 
 ### v1.0.7.4 — Documentation Alignment & NuGet Readme Cleanup
 
