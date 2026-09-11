@@ -283,8 +283,6 @@ var shell = ReflectionShellTemplate.GetCurrentShell();
 ```
 BoxaraXLibrary.GenenicLib.LTS/
 ├── Commons/
-│   ├── basicUtils/ # Utility helpers
-│   │   ├── ConvertSymbolUniverse.cs
 │   ├── Interface/ # Core contracts
 │   │   ├── ICommand.cs
 │   │   ├── IShellExecute.cs (IShell)
@@ -332,9 +330,11 @@ This file was removed in v1.0.7.5 to lean up the library. This historical refere
 </details>
 
 <details>
-<summary><strong>DESCRIBED BY v1.0.7.7 — obsolete input provider</strong></summary>
+<summary><strong>DESCRIBED BY v1.0.7.7 — obsolete input provider and utility</strong></summary>
 
 The `WithInputProvider` method and the `inputProvider` parameter in `ShellLoopTemplate.Run` were removed in v1.0.7.7 because the framework uses a key-based input loop (introduced in v1.0.6) and no longer invokes the external provider.
+
+Additionally, `ConvertSymbolUniverse.cs` (and its `ConvertTextToAsterisk` helper) was removed as it was only used by the Authentication system (removed in v1.0.7.3).
 
 </details>
 
@@ -829,29 +829,6 @@ ExternalCommandManager.RegisterExternalCommands(commands);
 ---
 
 ## Utility Helpers
-
-### `ConvertSymbolUniverse`
-
-Provides masked console input through its nested `ConvertTextToAsterisk` helper.
-
-```csharp
-public class ConvertSymbolUniverse
-{
-	public class ConvertTextToAsterisk
-	{
-		public static (int code, string result) ReadMaskedInput() { }
-	}
-}
-```
-
-**Usage:**
-
-```csharp
-var (code, password) =
-	ConvertSymbolUniverse.ConvertTextToAsterisk.ReadMaskedInput();
-```
-
----
 
 ### `CallDll` (Removed in v1.0.7.5)
 
@@ -1710,9 +1687,10 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
-### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider
+### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider & Utility
 
 - **Removed**: Completely removed `WithInputProvider` and its associated parameter in `ShellLoopTemplate.Run` as they were obsolete since v1.0.6.
+- **Removed**: Deleted `ConvertSymbolUniverse.cs` as it was a legacy utility for the removed Authentication system.
 
 ### v1.0.7.6 — README Architecture Audit & Documentation Accuracy
 
