@@ -285,7 +285,7 @@ BoxaraXLibrary.GenenicLib.LTS/
 ├── Commons/
 │   ├── Interface/ # Core contracts
 │   │   ├── ICommand.cs
-│   │   ├── IShellExecute.cs (IShell)
+│   │   ├── IShell.cs
 │   │   └── NonLoadableCommandAttribute.cs
 │   ├── Log/ # Logging system
 │   │   ├── LogConsole.cs
@@ -1689,8 +1689,9 @@ ShelliftAPIBuild.Create()
 
 ### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider & Utility
 
-- **Removed**: Completely removed `WithInputProvider` and its associated parameter in `ShellLoopTemplate.Run` as they were obsolete since v1.0.6.
-- **Removed**: Deleted `ConvertSymbolUniverse.cs` as it was a legacy utility for the removed Authentication system.
+- **Removed**: `WithInputProvider(...)` method from `ShelliftAPIBuild` and the `inputProvider` parameter from `ShellLoopTemplate.Run` as they were obsolete since v1.0.6.
+- **Removed**: `ConvertSymbolUniverse.cs` (including `ConvertTextToAsterisk` helper) as it was a legacy utility for the removed Authentication system (v1.0.7.3).
+- **Modified**: Renamed `IShellExecute.cs` to `IShell.cs` to align the filename with the internal interface name `IShell`.
 
 ### v1.0.7.6 — README Architecture Audit & Documentation Accuracy
 
