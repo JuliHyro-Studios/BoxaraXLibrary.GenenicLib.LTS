@@ -1706,6 +1706,11 @@ ShelliftAPIBuild.Create()
 ---
 
 ## Changelog
+
+### v1.0.7.8: Documentation & UI Usage Refresh
+
+- **Docs**: Added detailed usage examples for `QuestionShellTemplate` in the UI Components section.
+
 ### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider & Utility
 
 - **Removed**: `WithInputProvider(...)` method from `ShelliftAPIBuild` and the `inputProvider` parameter from `ShellLoopTemplate.Run` as they were obsolete since v1.0.6.
