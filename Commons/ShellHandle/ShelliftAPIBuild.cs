@@ -18,7 +18,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
         private string? _consoleTitle = null;
         private string[] _titleReasons = Array.Empty<string>();
         private string _headerExtraInfo = "";
-        private Func<string>? _customInputProvider;
         private Action<string>? _customPreProcessor;
         private Action<string, bool>? _customPostProcessor;
         private Func<bool>? _customExitCondition;
@@ -203,12 +202,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             _isCustomPromptSet = true;
             _customPromptGenerator = promptGenerator;
             _customPromptColor = color;
-            return this;
-        }
-
-        public ShelliftAPIBuild WithInputProvider(Func<string> inputProvider)
-        {
-            _customInputProvider = inputProvider;
             return this;
         }
 
@@ -461,7 +454,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     promptSegments,
                     _commands,
                     _shellName,
-                    _customInputProvider,
                     _customPreProcessor,
                     _customPostProcessor,
                     _customExitCondition,

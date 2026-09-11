@@ -332,6 +332,13 @@ This file was removed in v1.0.7.5 to lean up the library. This historical refere
 </details>
 
 <details>
+<summary><strong>DESCRIBED BY v1.0.7.7 — obsolete input provider</strong></summary>
+
+The `WithInputProvider` method and the `inputProvider` parameter in `ShellLoopTemplate.Run` were removed in v1.0.7.7 because the framework uses a key-based input loop (introduced in v1.0.6) and no longer invokes the external provider.
+
+</details>
+
+<details>
 <summary><strong>DESCRIBED BY v1.0.7.2 AND EARLIER — historical authentication structure</strong></summary>
 
 Before v1.0.7.3, the repository also contained the authentication subsystem:
@@ -1685,7 +1692,7 @@ ShelliftAPIBuild.Create()
 
 ### Q: Why does `WithInputProvider(...)` not replace keyboard input?
 
-**A:** `WithInputProvider(...)` was introduced in v1.0.4 and remains in the compatibility surface. Since v1.0.6, the current shell loop reads keys through `Console.KeyAvailable` and `Console.ReadKey`; the current implementation does not invoke the provider callback.
+**A:** `WithInputProvider(...)` was removed in v1.0.7.7 as it was obsolete since v1.0.6. The current shell loop reads keys through `Console.KeyAvailable` and `Console.ReadKey` directly.
 
 ### Q: How do I extend the framework?
 
@@ -1703,11 +1710,16 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
+### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider
+
+- **Removed**: Completely removed `WithInputProvider` and its associated parameter in `ShellLoopTemplate.Run` as they were obsolete since v1.0.6.
+
 ### v1.0.7.6 — README Architecture Audit & Documentation Accuracy
 
 - **Changed**: Refined `README.md` by removing detailed Core Interface definitions to ensure a concise, basic start for end-users; all detailed API specs remain in `devopsdoc.md`.
 - **Changed**: Re-structured the "Key Features" section in `README.md` into "Current Capabilities" and "Evolution & Deprecations" to accurately reflect the library's history and current state (Audit-based).
 - **Fixed**: Added precise version markers for internalized APIs (`ErrorShellTemplate` v1.0.7.1, `LogConsole` v1.0.7.3) and the Key-based input loop (v1.0.6) in `README.md` for better traceability.
+
 
 ### v1.0.7.5 — TableFormatterTemplate Usage Documentation & API Refinement
 

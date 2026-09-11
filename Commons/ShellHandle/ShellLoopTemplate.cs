@@ -19,7 +19,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             List<PromptSegment> segments,
             List<ICommand> commands,
             string shellName,
-            Func<string>? inputProvider = null,
             Action<string>? preProcessor = null,
             Action<string, bool>? postProcessor = null,
             Func<bool>? exitCondition = null,

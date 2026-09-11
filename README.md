@@ -50,7 +50,7 @@
 - **Authentication**: The legacy Auth system (`IAuthenticator`) was removed in v1.0.7.3 to simplify the core.
 - **Internalized APIs**: `ErrorShellTemplate` (v1.0.7.1) and `LogConsole` (v1.0.7.3) are now internal framework components to ensure stability.
 - **Refined Loop**: Transitioned from `Console.ReadLine` to a more responsive `Console.ReadKey` polling mechanism in v1.0.6.
-- **Lean-up**: Removed redundant helpers like `CallDll` (v1.0.7.5) to keep the library lightweight.
+- **Lean-up**: Removed redundant helpers like `CallDll` (v1.0.7.5) and obsolete input providers (`WithInputProvider` v1.0.7.7) to keep the library lightweight.
 
 ### 📦 Use Cases
 
