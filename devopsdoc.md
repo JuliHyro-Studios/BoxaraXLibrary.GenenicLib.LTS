@@ -1053,6 +1053,26 @@ public static class QuestionShellTemplate
 }
 ```
 
+**Usage:**
+
+```csharp
+// 1. Simple Yes/No confirmation
+bool confirmed = QuestionShellTemplate.ShowQuestion("Do you want to delete this file?");
+if (confirmed)
+{
+	// Execute deletion logic
+}
+
+// 2. Custom confirm/cancel text with timeout
+bool result = QuestionShellTemplate.ShowQuestion(
+	message: "Apply these changes to production?",
+	confirmText: "Yes, I'm sure",
+	cancelText: "No, cancel",
+	timeoutSeconds: 10,
+	timeoutMessage: "No response received. Action cancelled."
+);
+```
+
 ---
 
 ## Fluent API Reference
@@ -1686,6 +1706,11 @@ ShelliftAPIBuild.Create()
 ---
 
 ## Changelog
+
+### v1.0.7.8 — TBD
+
+- **Docs**: Added detailed usage examples for `QuestionShellTemplate` in the UI Components section.
+- TBD
 
 ### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider & Utility
 
