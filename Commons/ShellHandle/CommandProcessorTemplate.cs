@@ -111,7 +111,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             }
                             else
                             {
-                                // Only execute if no parameters are required
                                 bool hasRequired = cmd.Parameter != null && cmd.Parameter.Any(p => p.Contains("require:true", StringComparison.OrdinalIgnoreCase));
                                 if (hasRequired)
                                 {
@@ -269,7 +268,6 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             }
                             else
                             {
-                                // Only execute if no parameters are required
                                 bool hasRequired = selectedCmd.Parameter != null && selectedCmd.Parameter.Any(p => p.Contains("require:true", StringComparison.OrdinalIgnoreCase));
                                 if (hasRequired)
                                 {

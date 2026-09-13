@@ -586,12 +586,11 @@ public sealed class ShelliftAPIBuild
 	// Added in v1.0.3: custom header/prompt support
 
 	// Custom Input/Process Pipeline
-	public ShelliftAPIBuild WithInputProvider(Func<string> inputProvider) { }
 	public ShelliftAPIBuild WithPreProcessor(Action<string> preProcessor) { }
 	public ShelliftAPIBuild WithPostProcessor(Action<string, bool> postProcessor) { }
 	public ShelliftAPIBuild WithExitCondition(Func<bool> exitCondition) { }
-	// Added in v1.0.4; WithInputProvider is retained for compatibility but is
-	// not invoked by the current key-based shell loop.
+	// WithInputProvider was removed in v1.0.7.7; the current shell loop uses a
+	// key-based input flow and no longer invokes the historical provider callback.
 
 	// Command Lifecycle Hooks (Fluent)
 	public ShelliftAPIBuild WithCommandPreAction(Action<string, string[]> preAction) { }
@@ -616,11 +615,12 @@ public sealed class ShelliftAPIBuild
 ```
 
 **Version notes:** `SelectCustomHeader`, `SelectCustomPrompt`, and
-`WithExtraHeaderInfo` were introduced in v1.0.3. The input and processor
-callbacks were introduced in v1.0.4. The command and title hook methods were
-introduced in v1.0.5. Existing applications may continue using the original
-signatures documented in those releases; the current builder methods are the
-supported form for new applications.
+`WithExtraHeaderInfo` were introduced in v1.0.3. The processor callbacks were
+introduced in v1.0.4, while the `inputProvider` callback was later retired and is
+recorded only in the historical compatibility notes. The command and title hook
+methods were introduced in v1.0.5. Existing applications may continue using the
+original signatures documented in those releases; the current builder methods are
+the supported form for new applications.
 
 **Example:**
 
@@ -629,7 +629,7 @@ ShelliftAPIBuild.Create()
 	.SelectCommandShellLoad("MainShell")
 	.WithTitle("My CLI App", "Initializing...")
 	.SelectShellHeaderTemplate(HeaderStyle.Minimal)
-	.SelectShellPrompt(PromptStyle.Simple, ">>")
+	.SelectShellPrompt(PromptStyle.SimpleArrow, ">>")
 	.WithAppName("MyApp")
 	.WithAppVersion("2.0.0")
 	.Build();
@@ -653,7 +653,6 @@ public static class ShellLoopTemplate
 		List<PromptSegment> segments,
 		List<ICommand> commands,
 		string shellName,
-		Func<string>? inputProvider = null,
 		Action<string>? preProcessor = null,
 		Action<string, bool>? postProcessor = null,
 		Func<bool>? exitCondition = null,
