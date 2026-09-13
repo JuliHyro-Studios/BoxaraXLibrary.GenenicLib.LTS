@@ -719,6 +719,8 @@ public string[] Parameter => new[]
 
 `CommandProcessorTemplate` reads the raw command line, matches each template against the input, extracts the value, and enforces `require:true` before the command is allowed to run. Values may contain spaces, so `--hi:Xin chào` is treated as a single parameter value instead of being split on the first whitespace.
 
+> **Warning:** If any parameter is marked with `| require:true` and its value is missing or invalid, the framework does not call `Execute()`. It stops early, raises the validation error, and the command is skipped. This is intentional behavior: required-parameter validation happens before command execution.
+
 If a required parameter is missing, the framework raises a validation error and stops execution before `Execute()` is invoked.
 
 <details>
@@ -1751,6 +1753,10 @@ ShelliftAPIBuild.Create()
 ### Q: What happens if a command throws an exception?
 
 **A:** `CommandProcessorTemplate` catches command exceptions, renders an error, and normally keeps the shell loop running. `OnShellError` is the shell/build-level error callback; it is not a replacement for command-level error handling.
+
+### Q: What if a required parameter is missing?
+
+**A:** The framework validates required parameters before invoking `Execute()`. If a parameter is marked with `| require:true` and the value is missing or invalid, the command is skipped and a validation error is raised instead of running the command logic.
 
 ### Q: Why does the shell ask me to select a command?
 

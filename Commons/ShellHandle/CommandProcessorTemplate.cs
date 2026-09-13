@@ -103,6 +103,12 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             if (error != null)
                             {
                                 ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, error, "Framework");
+                                LogConsole.ForegroundColor = ConsoleColor.Red;
+                                LogConsole.WriteLine(
+                                    $"[FAIL] Command '{cmd.Name}' failed to execute.",
+                                    time
+                                );
+                                LogConsole.ResetColor();
                                 result = true;
                             }
                             else if (args.Length > 0)
@@ -115,24 +121,24 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                                 if (hasRequired)
                                 {
                                     ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, "This command requires parameters to execute.");
+                                    LogConsole.ForegroundColor = ConsoleColor.Red;
+                                    LogConsole.WriteLine(
+                                        $"[FAIL] Command '{cmd.Name}' failed to execute.",
+                                        time
+                                    );
+                                    LogConsole.ResetColor();
                                 }
                                 else
                                 {
                                     cmd.Execute();
+                                    LogConsole.ForegroundColor = ConsoleColor.Green;
+                                    LogConsole.WriteLine(
+                                        $"[OK] Command '{cmd.Name}' executed successfully.",
+                                        time
+                                    );
+                                    LogConsole.ResetColor();
                                 }
                             }
-
-                            if (error == null)
-                            {
-                                LogConsole.ForegroundColor = ConsoleColor.Green;
-                                LogConsole.WriteLine(
-                                    $"[OK] Command '{cmd.Name}' executed successfully.",
-                                    time
-                                );
-                                LogConsole.ResetColor();
-                            }
-
-                            result = true;
 
                             result = true;
                         }
@@ -260,11 +266,23 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             if (error != null)
                             {
                                 ErrorShellTemplate.ShowCommandInvalidParameter(selectedCmd.Name, error, "Framework");
+                                LogConsole.ForegroundColor = ConsoleColor.Red;
+                                LogConsole.WriteLine(
+                                    $"[FAIL] Command '{selectedCmd.Name}' failed to execute.",
+                                    time
+                                );
+                                LogConsole.ResetColor();
                                 result = true;
                             }
                             else if (args.Length > 0)
                             {
                                 selectedCmd.ParameterExecute(processedArgs);
+                                LogConsole.ForegroundColor = ConsoleColor.Green;
+                                LogConsole.WriteLine(
+                                    $"[OK] Command '{selectedCmd.Name}' executed successfully.",
+                                    time
+                                );
+                                LogConsole.ResetColor();
                             }
                             else
                             {
@@ -272,21 +290,23 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                                 if (hasRequired)
                                 {
                                     ErrorShellTemplate.ShowCommandInvalidParameter(selectedCmd.Name, "This command requires parameters to execute.");
+                                    LogConsole.ForegroundColor = ConsoleColor.Red;
+                                    LogConsole.WriteLine(
+                                        $"[FAIL] Command '{selectedCmd.Name}' failed to execute.",
+                                        time
+                                    );
+                                    LogConsole.ResetColor();
                                 }
                                 else
                                 {
                                     selectedCmd.Execute();
+                                    LogConsole.ForegroundColor = ConsoleColor.Green;
+                                    LogConsole.WriteLine(
+                                        $"[OK] Command '{selectedCmd.Name}' executed successfully.",
+                                        time
+                                    );
+                                    LogConsole.ResetColor();
                                 }
-                            }
-
-                            if (error == null)
-                            {
-                                LogConsole.ForegroundColor = ConsoleColor.Green;
-                                LogConsole.WriteLine(
-                                    $"[OK] Command '{selectedCmd.Name}' executed successfully.",
-                                    time
-                                );
-                                LogConsole.ResetColor();
                             }
 
                             result = true;
