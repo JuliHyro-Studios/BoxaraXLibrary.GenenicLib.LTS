@@ -1453,6 +1453,11 @@ public class AdvancedShell : IShell
 
 ### Example 1: Database-Backed Commands
 
+The current v1.0.7.8 pattern is to define parameter templates and validate them before execution. The older plain-name parameter style is kept only as historical context for migration.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.8 — legacy parameter example</strong></summary>
+
 ```csharp
 public class DatabaseCommand : ICommand
 {
@@ -1485,20 +1490,26 @@ public class DatabaseCommand : ICommand
 		try
 		{
 			var query = string.Join(" ", args);
-			// Execute database query
 			LogManager.Log($"[>] Executing: {query}");
-			// Results display
 			LogManager.Log("[<] Query completed");
 		}
-			catch (Exception ex)
-			{
-				throw new InvalidOperationException(ex.Message, ex);
-			}
+		catch (Exception ex)
+		{
+			throw new InvalidOperationException(ex.Message, ex);
+		}
 	}
 }
 ```
 
+This older style is historical only. Current v1.0.7.8 examples should use template metadata such as `--query:{0} | require:true` instead of a raw plain argument name list.
+</details>
+
 ### Example 2: Multi-Level Shell Hierarchy
+
+The current framework still supports shell switching by command logic, but the legacy plain-parameter example should remain in history rather than appearing as the preferred current pattern.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.8 — legacy shell-switch parameter example</strong></summary>
 
 ```csharp
 public class MainShell : IShell
@@ -1526,7 +1537,6 @@ public class AdminShell : IShell
 
 	public void Execute()
 	{
-		// AdminShell commands would be registered separately
 		ShelliftAPIBuild.Create()
 			.SelectCommandShellLoad(ShellName)
 			.WithTitle("Admin Shell", "Authorized")
@@ -1534,7 +1544,6 @@ public class AdminShell : IShell
 	}
 }
 
-// Switch shells via commands
 public class SwitchShellCommand : ICommand
 {
 	public string Name => "shell";
@@ -1558,7 +1567,15 @@ public class SwitchShellCommand : ICommand
 }
 ```
 
+This example reflects the older plain-parameter contract. In v1.0.7.8, prefer template metadata such as `--shell:{0} | require:true` and let the framework validate missing values before execution.
+</details>
+
 ### Example 3: Command with External Data Loading
+
+This legacy example remains only for historical context. New implementations should use the current pattern-based parameter metadata instead of positional plain names.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.8 — legacy config-command parameter example</strong></summary>
 
 ```csharp
 public class ConfigCommand : ICommand
@@ -1591,13 +1608,13 @@ public class ConfigCommand : ICommand
 		{
 			case "get":
 				if (args.Length < 2)
-						throw new ArgumentException("Expected: config get <key>", Name);
+					throw new ArgumentException("Expected: config get <key>", Name);
 				DisplayConfig(args[1]);
 				break;
 
 			case "set":
 				if (args.Length < 3)
-						throw new ArgumentException("Expected: config set <key> <value>", Name);
+					throw new ArgumentException("Expected: config set <key> <value>", Name);
 				SetConfig(args[1], args[2]);
 				break;
 
@@ -1606,7 +1623,7 @@ public class ConfigCommand : ICommand
 				break;
 
 			default:
-					throw new ArgumentException($"Unknown action: {action}", Name);
+				throw new ArgumentException($"Unknown action: {action}", Name);
 		}
 	}
 
@@ -1628,6 +1645,9 @@ public class ConfigCommand : ICommand
 	}
 }
 ```
+
+This older config command style reflects the plain-parameter contract and is retained only for migration context. In the current v1.0.7.8 model, prefer template metadata such as `--action:{0} | require:true`, `--key:{0}`, and `--value:{0}`.
+</details>
 
 ---
 
