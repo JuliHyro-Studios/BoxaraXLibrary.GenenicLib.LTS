@@ -19,7 +19,7 @@ namespace ConsoleApp
     {
         public string DisplayName => "Testpr";
 
-        public string[] Parameter => new[] { "hi" };
+        public string[] Parameter => new[] { "--hi:{0} | require:true", "--age:{0} | require:true" };
 
         public string Name => "testpr";
 
@@ -44,10 +44,14 @@ namespace ConsoleApp
 
             if (args.Length > 0)
             {
-                LogManager.Log($"[TESTPR] firstArg = '{args[0]}'");
+                LogManager.Log($"[TESTPR] firstArg (hi) = '{args[0]}'");
+            }
+            if (args.Length > 1)
+            {
+                LogManager.Log($"[TESTPR] secondArg (age) = '{args[1]}'");
             }
 
-            LogManager.Log($"[TESTPR] declared parameter = '{Parameter[0]}'");
+            LogManager.Log($"[TESTPR] declared parameter count = {Parameter.Length}");
         }
     }
 }

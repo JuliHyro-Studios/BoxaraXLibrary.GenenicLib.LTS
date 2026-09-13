@@ -50,6 +50,7 @@
 - **Authentication**: The legacy Auth system (`IAuthenticator`) was removed in v1.0.7.3 to simplify the core.
 - **Internalized APIs**: `ErrorShellTemplate` (v1.0.7.1) and `LogConsole` (v1.0.7.3) are now internal framework components to ensure stability.
 - **Refined Loop**: Transitioned from `Console.ReadLine` to a more responsive `Console.ReadKey` polling mechanism in v1.0.6.
+- **Parameter Model**: In v1.0.7.8, `ICommand.Parameter` supports template-based validation such as `--name:{0} | require:true`. Older plain parameter lists are retained only as historical context for migration and compatibility review.
 - **Lean-up**: Removed redundant helpers like `CallDll` (v1.0.7.5), `ConvertSymbolUniverse` (v1.0.7.7), and obsolete input providers (`WithInputProvider` v1.0.7.7) to keep the library lightweight.
 
 ### 📦 Use Cases
@@ -138,6 +139,8 @@ public class HelloCommand : ICommand
 	public void ParameterExecute(string[] args) { }
 }
 ```
+
+> **Current pattern (v1.0.7.8):** you can now define parameter templates such as `--name:{0} | require:true` and the framework validates them before execution. This keeps `ICommand` compatible while allowing values with spaces.
 
 ### 3. Register and Run
 

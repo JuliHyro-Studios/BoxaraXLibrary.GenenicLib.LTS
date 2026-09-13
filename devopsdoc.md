@@ -368,6 +368,8 @@ maintainers working with package versions that still included Authentication.
 
 The contract for all commands in the framework.
 
+`ICommand` continues to expose `Parameter` and `ParameterExecute(string[] args)`, but in v1.0.7.8 the framework treats `Parameter` as a pattern-based definition rather than a plain list of argument names. This allows command metadata such as `--name:{0} | require:true` and supports values that contain spaces.
+
 ```csharp
 public interface ICommand
 {
@@ -385,19 +387,23 @@ public interface ICommand
 }
 ```
 
-**Usage:**
+**Current v1.0.7.8 usage:**
 
 ```csharp
 public class MyCommand : ICommand
 {
-	public string Name => "mycommand";
-	public string DisplayName => "My Custom Command";
-	public string[] Aliases => new[] { "mc", "my" };
+	public string Name => "testpr";
+	public string DisplayName => "Test Parameter Command";
+	public string[] Aliases => Array.Empty<string>();
 	public string Category => "General";
 	public string Shell => "MainShell";
-	public string Description => "This is my custom command";
+	public string Description => "Demonstrates required parameter validation";
 	public string CommandVersion => "1.0.0";
-	public string[] Parameter => new[] { "arg1", "arg2" };
+	public string[] Parameter => new[]
+	{
+		"--hi:{0} | require:true",
+		"--age:{0} | require:true"
+	};
 
 	public void Execute()
 	{
@@ -406,14 +412,22 @@ public class MyCommand : ICommand
 
 	public void ParameterExecute(string[] args)
 	{
-		if (args.Length < 2)
-		{
-			throw new ArgumentException("Expected 2 arguments");
-		}
-		Console.WriteLine($"Executed with args: {string.Join(", ", args)}");
+		Console.WriteLine($"Received: {string.Join(", ", args)}");
 	}
 }
 ```
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.8 — legacy plain-parameter documentation</strong></summary>
+
+Older documentation described `ICommand.Parameter` as a simple list of names such as `new[] { "arg1", "arg2" }` and expected `ParameterExecute(string[] args)` to receive raw space-split values without validation. That historical description is retained here only for migration context and version history.
+
+```csharp
+public string[] Parameter => new[] { "arg1", "arg2" };
+```
+
+This older form is not the current v1.0.7.8 pattern-based contract. The current framework validates template definitions and required metadata before `Execute()` is allowed to run.
+</details>
 
 ---
 
@@ -691,6 +705,42 @@ public static class CommandProcessorTemplate
 	public static void WithCommandPostAction(Action<ICommand> action) { }
 }
 ```
+
+#### Parameter parsing and validation (v1.0.7.8)
+
+The current v1.0.7.8 behavior keeps the `ICommand` contract stable while upgrading how parameters are interpreted. `Parameter` entries can now be written as template rules such as:
+
+```csharp
+public string[] Parameter => new[]
+{
+	"--hi:{0} | require:true",
+	"--age:{0} | require:true"
+};
+```
+
+`CommandProcessorTemplate` reads the raw command line, matches each template against the input, extracts the value, and enforces `require:true` before the command is allowed to run. Values may contain spaces, so `--hi:Xin chào` is treated as a single parameter value instead of being split on the first whitespace.
+
+If a required parameter is missing, the framework raises a validation error and stops execution before `Execute()` is invoked.
+
+<details>
+<summary><strong>DESCRIBED BY v1.0.7.8 — legacy parameter-processing notes</strong></summary>
+
+Before v1.0.7.8, the framework documentation described `Parameter` as simple metadata and `ParameterExecute(string[] args)` as receiving raw space-split values with no pattern validation. That older model is retained here only as historical context for migration and compatibility review.
+
+The older description was effectively:
+
+```csharp
+public string[] Parameter => new[] { "arg1", "arg2" };
+
+public void ParameterExecute(string[] args)
+{
+	if (args.Length < 2)
+		throw new ArgumentException("Expected 2 arguments");
+}
+```
+
+This historical approach does not reflect the current v1.0.7.8 template-based validation flow.
+</details>
 
 #### Duplicate command selection (v1.0.7.2)
 
@@ -1707,8 +1757,13 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
-### v1.0.7.8: Documentation & UI Usage Refresh
+### v1.0.7.8 — Parameter System Overhaul & Diagnostics
 
+- **Added**: **Pattern-based Parameter Matching**. Parameters are now defined as templates (e.g., `--name:{0}`). The framework automatically extracts values, supporting parameters that contain spaces.
+- **Added**: **Required Parameter Enforcement**. Support for `| require:true` metadata. Commands with required parameters will block `Execute()` and trigger a validation error if the parameter is missing.
+- **Added**: **Dynamic Response Sources**. Error messages now distinguish between `Framework Response` (validation errors) and `Command Module Response` (exceptions thrown by the command logic).
+- **Changed**: `CommandProcessorTemplate` rewritten to use raw string processing and look-ahead segmentation for parameter extraction.
+- **Changed**: `ErrorShellTemplate` updated to support dynamic source labeling.
 - **Docs**: Added detailed usage examples for `QuestionShellTemplate` in the UI Components section.
 
 ### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider & Utility

@@ -24,9 +24,12 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
             try
             {
-                var splitInput = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var splitInput = input.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (splitInput.Length == 0) return false;
+
                 string commandName = splitInput[0].ToLower();
-                string[] args = splitInput.Skip(1).ToArray();
+                string rawArgs = splitInput.Length > 1 ? splitInput[1] : string.Empty;
+                string[] args = rawArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 preAction?.Invoke(commandName, args);
 
@@ -80,12 +83,14 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                         {
                             ErrorShellTemplate.ShowCommandInvalidParameter(
                                 cmd.Name,
-                                "This command does not accept any parameters."
+                                "This command does not accept any parameters.",
+                                "Framework"
                             );
                             result = true;
                         }
                         else
                         {
+                            string? error = null;
                             LogConsole.ForegroundColor = ConsoleColor.DarkGray;
                             LogConsole.WriteLine(
                                 $"[WAIT] Waiting for command '{cmd.Name}' response...",
@@ -93,28 +98,49 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             );
                             LogConsole.ResetColor();
 
-                            if (args.Length > 0)
+                            string[] processedArgs = ResolveParameters(cmd, rawArgs, out error);
+
+                            if (error != null)
                             {
-                                cmd.ParameterExecute(args);
+                                ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, error, "Framework");
+                                result = true;
+                            }
+                            else if (args.Length > 0)
+                            {
+                                cmd.ParameterExecute(processedArgs);
                             }
                             else
                             {
-                                cmd.Execute();
+                                // Only execute if no parameters are required
+                                bool hasRequired = cmd.Parameter != null && cmd.Parameter.Any(p => p.Contains("require:true", StringComparison.OrdinalIgnoreCase));
+                                if (hasRequired)
+                                {
+                                    ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, "This command requires parameters to execute.");
+                                }
+                                else
+                                {
+                                    cmd.Execute();
+                                }
                             }
 
-                            LogConsole.ForegroundColor = ConsoleColor.Green;
-                            LogConsole.WriteLine(
-                                $"[OK] Command '{cmd.Name}' executed successfully.",
-                                time
-                            );
-                            LogConsole.ResetColor();
+                            if (error == null)
+                            {
+                                LogConsole.ForegroundColor = ConsoleColor.Green;
+                                LogConsole.WriteLine(
+                                    $"[OK] Command '{cmd.Name}' executed successfully.",
+                                    time
+                                );
+                                LogConsole.ResetColor();
+                            }
+
+                            result = true;
 
                             result = true;
                         }
                     }
                     catch (ArgumentException argEx)
                     {
-                        ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, argEx.Message);
+                        ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, argEx.Message, "Command Module");
                         result = true;
                     }
                     catch (Exception ex)
@@ -215,12 +241,14 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                         {
                             ErrorShellTemplate.ShowCommandInvalidParameter(
                                 selectedCmd.Name,
-                                "This command does not accept any parameters."
+                                "This command does not accept any parameters.",
+                                "Framework"
                             );
                             result = true;
                         }
                         else
                         {
+                            string? error = null;
                             LogConsole.ForegroundColor = ConsoleColor.DarkGray;
                             LogConsole.WriteLine(
                                 $"[WAIT] Waiting for command '{selectedCmd.Name}' response...",
@@ -228,21 +256,40 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             );
                             LogConsole.ResetColor();
 
-                            if (args.Length > 0)
+                            string[] processedArgs = ResolveParameters(selectedCmd, rawArgs, out error);
+
+                            if (error != null)
                             {
-                                selectedCmd.ParameterExecute(args);
+                                ErrorShellTemplate.ShowCommandInvalidParameter(selectedCmd.Name, error, "Framework");
+                                result = true;
+                            }
+                            else if (args.Length > 0)
+                            {
+                                selectedCmd.ParameterExecute(processedArgs);
                             }
                             else
                             {
-                                selectedCmd.Execute();
+                                // Only execute if no parameters are required
+                                bool hasRequired = selectedCmd.Parameter != null && selectedCmd.Parameter.Any(p => p.Contains("require:true", StringComparison.OrdinalIgnoreCase));
+                                if (hasRequired)
+                                {
+                                    ErrorShellTemplate.ShowCommandInvalidParameter(selectedCmd.Name, "This command requires parameters to execute.");
+                                }
+                                else
+                                {
+                                    selectedCmd.Execute();
+                                }
                             }
 
-                            LogConsole.ForegroundColor = ConsoleColor.Green;
-                            LogConsole.WriteLine(
-                                $"[OK] Command '{selectedCmd.Name}' executed successfully.",
-                                time
-                            );
-                            LogConsole.ResetColor();
+                            if (error == null)
+                            {
+                                LogConsole.ForegroundColor = ConsoleColor.Green;
+                                LogConsole.WriteLine(
+                                    $"[OK] Command '{selectedCmd.Name}' executed successfully.",
+                                    time
+                                );
+                                LogConsole.ResetColor();
+                            }
 
                             result = true;
                         }
@@ -251,7 +298,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     {
                         ErrorShellTemplate.ShowCommandInvalidParameter(
                             selectedCmd.Name,
-                            argEx.Message
+                            argEx.Message,
+                            "Command Module"
                         );
                         result = true;
                     }
@@ -281,6 +329,71 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 LogConsole.ResetColor();
                 return false;
             }
+        }
+
+        private static string[] ResolveParameters(ICommand cmd, string rawArgs, out string? error)
+        {
+            error = null;
+            if (cmd.Parameter == null || cmd.Parameter.Length == 0)
+            {
+                return rawArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            }
+
+            string[] resultValues = new string[cmd.Parameter.Length];
+            List<string> keys = new List<string>();
+
+            for (int i = 0; i < cmd.Parameter.Length; i++)
+            {
+                string pattern = cmd.Parameter[i].Split('|')[0].Trim();
+                int placeholderIndex = pattern.IndexOf("{0}");
+                if (placeholderIndex != -1)
+                {
+                    keys.Add(pattern.Substring(0, placeholderIndex));
+                }
+            }
+
+            for (int i = 0; i < cmd.Parameter.Length; i++)
+            {
+                string definition = cmd.Parameter[i];
+                string[] parts = definition.Split('|');
+                string pattern = parts[0].Trim();
+                bool isRequired = parts.Length > 1 && parts[1].Trim().Equals("require:true", StringComparison.OrdinalIgnoreCase);
+
+                int placeholderIndex = pattern.IndexOf("{0}");
+                if (placeholderIndex != -1)
+                {
+                    string key = pattern.Substring(0, placeholderIndex);
+                    int startPos = rawArgs.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+                    if (startPos != -1)
+                    {
+                        int valueStart = startPos + key.Length;
+                        int nextKeyPos = rawArgs.Length;
+
+                        foreach (var otherKey in keys)
+                        {
+                            int pos = rawArgs.IndexOf(otherKey, valueStart, StringComparison.OrdinalIgnoreCase);
+                            if (pos != -1 && pos < nextKeyPos)
+                            {
+                                nextKeyPos = pos;
+                            }
+                        }
+                        resultValues[i] = rawArgs.Substring(valueStart, nextKeyPos - valueStart).Trim();
+                    }
+                }
+
+                if (isRequired && string.IsNullOrEmpty(resultValues[i]))
+                {
+                    error = $"Missing required parameter: {pattern}";
+                    return Array.Empty<string>();
+                }
+            }
+
+            for (int i = 0; i < resultValues.Length; i++)
+            {
+                if (resultValues[i] == null) resultValues[i] = string.Empty;
+            }
+
+            return resultValues;
         }
     }
 }
