@@ -1786,10 +1786,14 @@ ShelliftAPIBuild.Create()
 
 - **Added**: **Pattern-based Parameter Matching**. Parameters are now defined as templates (e.g., `--name:{0}`). The framework automatically extracts values, supporting parameters that contain spaces.
 - **Added**: **Required Parameter Enforcement**. Support for `| require:true` metadata. Commands with required parameters will block `Execute()` and trigger a validation error if the parameter is missing.
-- **Added**: **Dynamic Response Sources**. Error messages now distinguish between `Framework Response` (validation errors) and `Command Module Response` (exceptions thrown by the command logic).
+- **Added**: **Clear Execution Guardrail**. Documentation now explicitly states that a required parameter with missing or invalid data causes the command to be skipped before `Execute()` is called.
+- **Added**: **User-facing Failure Messaging**. Fail paths now produce natural terminal output such as `[FAIL] Command 'x' failed to execute.` instead of awkward or misleading wording.
+- **Added**: **FAQ Coverage**. Added a dedicated FAQ entry covering required-parameter validation and command-skipping behavior for safer usage.
 - **Changed**: `CommandProcessorTemplate` rewritten to use raw string processing and look-ahead segmentation for parameter extraction.
 - **Changed**: `ErrorShellTemplate` updated to support dynamic source labeling.
+- **Changed**: Documentation restructured to keep current API guidance in the main sections while archiving older plain-parameter examples under historical migration notes.
 - **Docs**: Added detailed usage examples for `QuestionShellTemplate` in the UI Components section.
+- **Docs**: Updated developer guidance to warn that `require:true` prevents execution rather than allowing command logic to run with incomplete parameters.
 
 ### v1.0.7.7 — Lean-up: Removal of Obsolete Input Provider & Utility
 
