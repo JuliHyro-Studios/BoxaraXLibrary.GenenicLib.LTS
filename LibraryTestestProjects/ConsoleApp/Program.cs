@@ -1,4 +1,6 @@
 ﻿using System;
+using BoxaraXLibrary.GenenicLib.LTS.Commons.Interface;
+using BoxaraXLibrary.GenenicLib.LTS.Commons.Log;
 using BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle;
 
 namespace ConsoleApp
@@ -10,6 +12,42 @@ namespace ConsoleApp
             Console.WriteLine("Starting BoxaraXLibrary.GenenicLib.LTS test...");
 
             ShelliftAPIBuild.OpenShell("TestShell");
+        }
+    }
+
+    public sealed class TestprCommand : ICommand
+    {
+        public string DisplayName => "Testpr";
+
+        public string[] Parameter => new[] { "hi" };
+
+        public string Name => "testpr";
+
+        public string[] Aliases => Array.Empty<string>();
+
+        public string Category => "Testing";
+
+        public string Shell => "TestShell";
+
+        public string Description => "Test one-parameter command using the required 'hi' argument.";
+
+        public string CommandVersion => "1.0.0";
+
+        public void Execute()
+        {
+            LogManager.Log("[TESTPR] Execute() called without parameters.");
+        }
+
+        public void ParameterExecute(string[] args)
+        {
+            LogManager.Log($"[TESTPR] args count = {args.Length}");
+
+            if (args.Length > 0)
+            {
+                LogManager.Log($"[TESTPR] firstArg = '{args[0]}'");
+            }
+
+            LogManager.Log($"[TESTPR] declared parameter = '{Parameter[0]}'");
         }
     }
 }

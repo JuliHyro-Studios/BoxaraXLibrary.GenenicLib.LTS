@@ -69,7 +69,7 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
             string time = GetCurrentTime();
             LogConsole.ForegroundColor = ConsoleColor.Red;
             LogConsole.WriteLine(
-                $"[X] Invalid parameter(s) for command '{commandName}'. [Command Module Response: {details}]".TrimEnd(),
+                $"[X] Invalid or missing parameter(s) for command '{commandName}'. [Command Module Response: {details}]".TrimEnd(),
                 time
             );
             LogConsole.ResetColor();
