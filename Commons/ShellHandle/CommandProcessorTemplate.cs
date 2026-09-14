@@ -24,8 +24,13 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
             try
             {
-                var splitInput = input.Split(new[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
-                if (splitInput.Length == 0) return false;
+                var splitInput = input.Split(
+                    new[] { ' ' },
+                    2,
+                    StringSplitOptions.RemoveEmptyEntries
+                );
+                if (splitInput.Length == 0)
+                    return false;
 
                 string commandName = splitInput[0].ToLower();
                 string rawArgs = splitInput.Length > 1 ? splitInput[1] : string.Empty;
@@ -102,7 +107,11 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
                             if (error != null)
                             {
-                                ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, error, "Framework");
+                                ErrorShellTemplate.ShowCommandInvalidParameter(
+                                    cmd.Name,
+                                    error,
+                                    "Framework"
+                                );
                                 LogConsole.ForegroundColor = ConsoleColor.Red;
                                 LogConsole.WriteLine(
                                     $"[FAIL] Command '{cmd.Name}' failed to execute.",
@@ -117,10 +126,20 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             }
                             else
                             {
-                                bool hasRequired = cmd.Parameter != null && cmd.Parameter.Any(p => p.Contains("require:true", StringComparison.OrdinalIgnoreCase));
+                                bool hasRequired =
+                                    cmd.Parameter != null
+                                    && cmd.Parameter.Any(p =>
+                                        p.Contains(
+                                            "require:true",
+                                            StringComparison.OrdinalIgnoreCase
+                                        )
+                                    );
                                 if (hasRequired)
                                 {
-                                    ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, "This command requires parameters to execute.");
+                                    ErrorShellTemplate.ShowCommandInvalidParameter(
+                                        cmd.Name,
+                                        "This command requires parameters to execute."
+                                    );
                                     LogConsole.ForegroundColor = ConsoleColor.Red;
                                     LogConsole.WriteLine(
                                         $"[FAIL] Command '{cmd.Name}' failed to execute.",
@@ -145,7 +164,11 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                     }
                     catch (ArgumentException argEx)
                     {
-                        ErrorShellTemplate.ShowCommandInvalidParameter(cmd.Name, argEx.Message, "Command Module");
+                        ErrorShellTemplate.ShowCommandInvalidParameter(
+                            cmd.Name,
+                            argEx.Message,
+                            "Command Module"
+                        );
                         result = true;
                     }
                     catch (Exception ex)
@@ -261,11 +284,19 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             );
                             LogConsole.ResetColor();
 
-                            string[] processedArgs = ResolveParameters(selectedCmd, rawArgs, out error);
+                            string[] processedArgs = ResolveParameters(
+                                selectedCmd,
+                                rawArgs,
+                                out error
+                            );
 
                             if (error != null)
                             {
-                                ErrorShellTemplate.ShowCommandInvalidParameter(selectedCmd.Name, error, "Framework");
+                                ErrorShellTemplate.ShowCommandInvalidParameter(
+                                    selectedCmd.Name,
+                                    error,
+                                    "Framework"
+                                );
                                 LogConsole.ForegroundColor = ConsoleColor.Red;
                                 LogConsole.WriteLine(
                                     $"[FAIL] Command '{selectedCmd.Name}' failed to execute.",
@@ -286,10 +317,20 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                             }
                             else
                             {
-                                bool hasRequired = selectedCmd.Parameter != null && selectedCmd.Parameter.Any(p => p.Contains("require:true", StringComparison.OrdinalIgnoreCase));
+                                bool hasRequired =
+                                    selectedCmd.Parameter != null
+                                    && selectedCmd.Parameter.Any(p =>
+                                        p.Contains(
+                                            "require:true",
+                                            StringComparison.OrdinalIgnoreCase
+                                        )
+                                    );
                                 if (hasRequired)
                                 {
-                                    ErrorShellTemplate.ShowCommandInvalidParameter(selectedCmd.Name, "This command requires parameters to execute.");
+                                    ErrorShellTemplate.ShowCommandInvalidParameter(
+                                        selectedCmd.Name,
+                                        "This command requires parameters to execute."
+                                    );
                                     LogConsole.ForegroundColor = ConsoleColor.Red;
                                     LogConsole.WriteLine(
                                         $"[FAIL] Command '{selectedCmd.Name}' failed to execute.",
@@ -375,7 +416,9 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
                 string definition = cmd.Parameter[i];
                 string[] parts = definition.Split('|');
                 string pattern = parts[0].Trim();
-                bool isRequired = parts.Length > 1 && parts[1].Trim().Equals("require:true", StringComparison.OrdinalIgnoreCase);
+                bool isRequired =
+                    parts.Length > 1
+                    && parts[1].Trim().Equals("require:true", StringComparison.OrdinalIgnoreCase);
 
                 int placeholderIndex = pattern.IndexOf("{0}");
                 if (placeholderIndex != -1)
@@ -389,13 +432,19 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
                         foreach (var otherKey in keys)
                         {
-                            int pos = rawArgs.IndexOf(otherKey, valueStart, StringComparison.OrdinalIgnoreCase);
+                            int pos = rawArgs.IndexOf(
+                                otherKey,
+                                valueStart,
+                                StringComparison.OrdinalIgnoreCase
+                            );
                             if (pos != -1 && pos < nextKeyPos)
                             {
                                 nextKeyPos = pos;
                             }
                         }
-                        resultValues[i] = rawArgs.Substring(valueStart, nextKeyPos - valueStart).Trim();
+                        resultValues[i] = rawArgs
+                            .Substring(valueStart, nextKeyPos - valueStart)
+                            .Trim();
                     }
                 }
 
@@ -408,7 +457,8 @@ namespace BoxaraXLibrary.GenenicLib.LTS.Commons.ShellHandle
 
             for (int i = 0; i < resultValues.Length; i++)
             {
-                if (resultValues[i] == null) resultValues[i] = string.Empty;
+                if (resultValues[i] == null)
+                    resultValues[i] = string.Empty;
             }
 
             return resultValues;

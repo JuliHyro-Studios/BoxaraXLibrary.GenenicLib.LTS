@@ -1782,6 +1782,12 @@ ShelliftAPIBuild.Create()
 
 ## Changelog
 
+### v1.0.7.9 — TBD
+
+- **Planned**: Reserve the next release section for the post-v1.0.7.8 change set.
+- **Pending**: No finalized user-facing changes have been recorded yet for this version.
+- **Docs**: This placeholder will be replaced with the actual summary once the next release scope is confirmed.
+
 ### v1.0.7.8 — Parameter System Overhaul & Diagnostics
 
 - **Added**: **Pattern-based Parameter Matching**. Parameters are now defined as templates (e.g., `--name:{0}`). The framework automatically extracts values, supporting parameters that contain spaces.
