@@ -11,7 +11,6 @@ set NUGET_API_URL=https://api.nuget.org/v3/index.json
 set NUGET_PACKAGE_URL=https://www.nuget.org/packages/%PACKAGE_NAME%
 set OUTPUT_DIR=nupkgs
 :: ============================================================
-
 :: ===== STEP 1: BUILD NUGET FLATCONTAINER URL FROM PACKAGE NAME =====
 set NUGET_FLATCONTAINER_URL=https://api.nuget.org/v3-flatcontainer/%PACKAGE_NAME:BoxaraXLibrary.GenenicLib.LTS=boxaraxlibrary.geneniclib.lts%/index.json
 
